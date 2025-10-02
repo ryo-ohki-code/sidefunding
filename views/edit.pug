@@ -1,0 +1,39 @@
+// views/edit.pug
+doctype html
+html
+  head
+    title Edit Project
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    link(rel='stylesheet', href='/style.css')
+  body
+    .menu-container
+      nav
+        ul
+          li: a(href="/") Home
+    br
+    h1 Edit Project
+    br
+    form(action=`/edit/${project.id}`, method='post' style="text-align:center;").project-card
+      label Title:
+      input(type='text', name='title', value=project.title, required)
+      br
+      br
+      
+      label Description:
+      textarea(name='description', required)= project.description
+      br
+      br
+
+      label Goal ($):
+      input(type='number', name='goal', value=project.goal, required)
+      br
+      br
+
+      label Deadline:
+      input(type='date', name='deadline', value=project.deadline.toISOString().split('T')[0], required)
+      br
+      br
+
+
+      button(type='submit').cool-button Update Project
