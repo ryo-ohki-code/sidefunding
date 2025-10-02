@@ -1,0 +1,50 @@
+// views/project-detail.pug
+doctype html
+html
+  head
+    title #{project.title} - Crowdfunding
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    link(rel='stylesheet', href='/style.css')
+  body
+    .menu-container
+      nav
+        ul
+          li: a(href="/") Home
+          li: a(href=`/edit/${project.id}`) Edit Project
+
+    br
+    .project-card
+      h1 #{project.title}
+      p: i Created #{project.creation.toLocaleDateString()} by #{project.owner}
+    
+      p #{project.description}
+      p: b Goal: $#{project.goal}
+      p: b Raised: 
+        span(style="color:darkgreen;") $#{project.raised}
+      p: b Remaining: 
+        span(style="color:darkred;") $#{Number(project.goal) - Number(project.raised)}
+      p Deadline: #{project.deadline.toLocaleDateString()}
+      
+      .progress-bar
+        .progress(style=`width: ${(project.raised/project.goal)*100}%`)
+      h3(style="text-align:center;") #{Math.round((project.raised/project.goal)*100)}% funded
+
+    if(project.deadline > new Date())
+      a(href=`/donate/${project.id}`) 
+        button.cool-button Donate Now
+
+    br
+    br
+    if(project.donation)
+      if(Object.keys(project.donation).length > 0)
+
+        each donor in project.donation
+
+          if(donor.status == "waiting")
+            h2 Receiving donation 
+            p=JSON.stringify(donor)
+          if(donor.status == "confirmed")
+            h2 Received donation 
+            p=JSON.stringify(donor)
+
