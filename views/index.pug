@@ -1,0 +1,40 @@
+// views/index.pug
+doctype html
+html
+  head
+    title Crowdfunding Platform
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    link(rel='stylesheet', href='/style.css')
+  body
+    .menu-container
+      nav
+        ul
+          li: a(href="#" class="active") Home
+          li: a(href='/create') Add New Project
+
+   
+    br
+    h1 Welome to SideFunding 
+    br
+    h2 Active Crowdfunding Projects
+    br
+    .projects
+      each project in projects.reverse()
+        .project-card
+          h3 #{project.title}
+          p Deadline: #{project.deadline.toLocaleDateString()}
+          p #{project.description}
+          p: b Goal: $#{project.goal} | Raised: 
+            span(style="color:darkgreen;") $#{project.raised}
+          a(href=`/project/${project.id}`).cool-button View Details
+
+    br
+    h2 Closed Crowdfunding Projects
+    br
+    .projects
+      each project in inactiveProjects.reverse()
+        .project-card
+          h2 #{project.title}
+          p Expired: #{project.deadline.toLocaleDateString()}
+          a(href=`/project/${project.id}`).cool-button View Details
