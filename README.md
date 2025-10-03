@@ -7,8 +7,8 @@ This platform allows users to create funding requests and accept donations using
 **Revenue Model**:
 How it works:
 - Platform owners earn 0-2% commission on every transaction processed through SideShift API
-- Fees are collected in XAI tokens (SideShift's native cryptocurrency)
-- XAI tokens can be exchanged directly on the SideShift platform
+- Fees are collected in XAI tokens (SideShift's native cryptocurrency) and directly credited to your SideShift account
+- XAI tokens can be exchanged on the SideShift platform
 
 
 ## Installation 
@@ -58,8 +58,8 @@ CURRENCY_SETTING.USD_REFERENCE_COIN = "USDT-bsc"; // Must be a coin-network from
 ```
 const cryptoProcessor = require('./ShiftProcessor.js')
 const shiftGateway = new cryptoProcessor({
-  SIDESHIFT_CONFIG,
-  CURRENCY_SETTING
+  sideshiftConfig: SIDESHIFT_CONFIG,
+  currencySetting: CURRENCY_SETTING
 });
 ```
 
