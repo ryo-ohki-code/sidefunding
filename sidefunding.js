@@ -1,70 +1,46 @@
-// app.js
+// SideShift API crowdfunding demo - SideFunding
+
+require('dotenv').config({ quiet: true }); //  debug: true 
+
 const express = require('express');
-const path = require('path');
 const app = express();
+const port = 3000;
 
 // Middleware
 app.set('view engine', 'pug');
-app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(path.join(__dirname, 'public')));
+app.set('views', __dirname + '/views');
+app.use(express.static(__dirname + '/public'));
 app.use(express.urlencoded({ extended: true }));
 
-
-// Use payment-integration settings
-const MAIN_WALLET = {
-    coin: "BNB",
-    network: "bsc",
-    address: "", // Your wallet address
-    isMemo: [false, ""] // Set to [false, ""] or if your wallet need a Memo set to [true, "YourMemoHere"]
-}
-
-const SECONDARY_WALLET = {
-    coin: "USDT",
-    network: "bsc",
-    address: "",
-    isMemo: [false, ""]
-}
-
-const MAIN_COIN = `${MAIN_WALLET.coin}-${MAIN_WALLET.network}`;
-const SECONDARY_COIN = `${SECONDARY_WALLET.coin}-${SECONDARY_WALLET.network}`;
-
-const WALLETS = {
-    [MAIN_COIN]: MAIN_WALLET,
-    [SECONDARY_COIN]: SECONDARY_WALLET
-};
+const verbose = true;
 
 const SIDESHIFT_CONFIG = {
-    path: "./sideshiftAPI.js", // Path to module file
-    secret: "", // "Your_shideshift_secret";
-    id: "", // "Your_shideshift_ID"; 
-    commissionRate: "0.5", // Optional - commision rate setting from 0 to 2
-    verbose: true // verbose mode true/false
-}
+    path: "./../../Sideshift_API_module/sideshiftAPI.js", // Path to module file
+	secret: process.env.SIDESHIFT_SECRET, // "Your_SideShift_secret";
+	id: process.env.SIDESHIFT_ID, // "Your_SideShift_ID"; 
+	commissionRate: "0.5", // Optional - commision rate setting from 0 to 2
+	verbose: true // verbose mode true/false
+};
 
 // Shop configuration
-const SHOP_SETTING = {};
-SHOP_SETTING.locale = "en-EN";
-SHOP_SETTING.currency = "USD"; // USD EUR CNY INR JPY ... use ISO4217 currency codes
-SHOP_SETTING.USD_REFERENCE_COIN = "USDT-bsc"; // Must be a 'coin-network' from the sideshift API
+const CURRENCY_SETTING = {};
+CURRENCY_SETTING.locale = "en-EN";
+CURRENCY_SETTING.currency = "USD"; // USD EUR CNY INR JPY ... use ISO4217 currency codes
 
-function resetCryptoPayment(invoiceId, shiftId, cryptoPaymentStatus) {
-
-}
-
-// Demo function to Confirm Crypto payment
-function confirmCryptoPayment(invoiceId, shiftId) {
-
-}
 
 // Load the crypto payment processor
-const ShiftProcessor = require('./ShiftProcessor.js')
-const shiftProcessor = new ShiftProcessor({ WALLETS, MAIN_COIN, SECONDARY_COIN, SIDESHIFT_CONFIG, SHOP_SETTING });
+const ShiftProcessor = require('./../Shop_integration/Wave_1/ShiftProcessor.js')
+const shiftProcessor = new ShiftProcessor({ sideshiftConfig: SIDESHIFT_CONFIG, currencySetting: CURRENCY_SETTING });
+
+// Demo function needed to load PaymentPoller
+function resetCryptoPayment(invoiceId, shiftId, cryptoPaymentStatus) {
+}
+function confirmCryptoPayment(invoiceId, shiftId) {
+}
 
 // Load the payment poller system
-const PaymentPoller = require('./CryptoPaymentPoller.js');
-const cryptoPoller = new PaymentPoller({ shiftProcessor, intervalTimeout: 30000, resetCryptoPayment, confirmCryptoPayment }); // import sideshiftAPI and set interval delay in ms
-
-
+const PaymentPoller = require('./../Shop_integration/Wave_1/CryptoPaymentPoller.js');
+const cryptoPoller = new PaymentPoller({ shiftProcessor, intervalTimeout: 30000, resetCryptoPayment, confirmCryptoPayment });
 
 
 
@@ -100,6 +76,8 @@ let crowdfundingProjects = [
     }
 ];
 
+
+
 // Routes
 app.get('/', (req, res) => {
     // Get active projects (not expired)
@@ -109,8 +87,9 @@ app.get('/', (req, res) => {
     const inactiveProjects = crowdfundingProjects.filter(project =>
         project.deadline < new Date()
     );
-    res.render('crowd_index', { projects: activeProjects, inactiveProjects: inactiveProjects });
+    res.render('index', { projects: activeProjects, inactiveProjects: inactiveProjects });
 });
+
 
 app.get('/project/:id', (req, res) => {
     const project = crowdfundingProjects.find(p => p.id == req.params.id);
@@ -118,13 +97,13 @@ app.get('/project/:id', (req, res) => {
     res.render('project-detail', { project });
 });
 
+
 app.get('/donate/:id', (req, res) => {
     const project = crowdfundingProjects.find(p => p.id == req.params.id);
     if (!project) return res.status(404).render('404');
     res.render('donate', { project, coinsDepositList: availableCoins });
 });
 
-// Payment handling - placeholder for your payment system
 app.post('/donate/:id', async (req, res) => {
     try {
         const project = crowdfundingProjects.find(p => p.id == req.params.id);
@@ -133,20 +112,22 @@ app.post('/donate/:id', async (req, res) => {
         const donor = req.body.donor;
         const payWith = JSON.parse(req.body.payWith);
         const payWithCoin = payWith[0];
-        // Process payment (replace with your actual payment logic)
+
         const amount = Number(req.body.amount);
         const settleCoinNetwork = project.coin + "-" + project.network
 
         const settleAmount = await shiftProcessor.getAmountToShift(amount, payWithCoin, settleCoinNetwork);
         const pairData = await shiftProcessor.sideshift.getPair(payWithCoin, settleCoinNetwork);
-        // create shift with externalId to set redirection page on payment validation 
+        // ? create shift with externalId to set redirection page on payment validation 
         res.render('crypto', { ratio: pairData, projectName: project.title, invoice: { cryptoTotal: settleAmount, total: amount, id: req.params.id, donor: donor }, SHOP_SETTING });
     } catch (error) {
         console.log(error);
+        res.render('error', { error: { title: "Error setting donation", message: err.message } });
+
     }
 
 });
-const verbose = true;
+
 
 app.post("/create-payment", async function (req, res) {
     try {
@@ -180,38 +161,42 @@ app.post("/create-payment", async function (req, res) {
         res.redirect(`/payment-status/${shift.id}/${id}`);
     } catch (err) {
         if (verbose) console.error("Error in create-payment:", err);
-        // res.render('error', { error: { title: "Error creating payment", message: err.message } });
+        res.render('error', { error: { title: "Error creating payment", message: err.message } });
     }
 });
 
 
-// need the shop payment processing
 app.get('/payment-status/:shiftId/:projectId', async (req, res) => {
-    const shiftId = req.params.shiftId;
-    const projectId = req.params.projectId;
-    const project = crowdfundingProjects.find(p => p.id == projectId);
+    try{
+        const shiftId = req.params.shiftId;
+        const projectId = req.params.projectId;
+        const project = crowdfundingProjects.find(p => p.id == projectId);
 
-    // check polling system
-    const getStatus = await cryptoPoller.getPollingShiftData(shiftId);
-    let getPaymentStatus;
-    if (!getStatus) {
-        // If no data use the sideshift API
-        getPaymentStatus = await shiftProcessor.sideshift.getShift(shiftId);
-    } else {
-        getPaymentStatus = getStatus.shift;
-    }
-    if (!getPaymentStatus) throw new Error('No shift found')
+        // check polling system
+        const getStatus = await cryptoPoller.getPollingShiftData(shiftId);
+        let getPaymentStatus;
+        if (!getStatus) {
+            // If no data from polling use the SideShift API
+            getPaymentStatus = await shiftProcessor.sideshift.getShift(shiftId);
+        } else {
+            getPaymentStatus = getStatus.shift;
+        }
+        if (!getPaymentStatus) throw new Error('No shift found')
 
-    if (getPaymentStatus.status === "settled") {
-        // Update project raised amount
-        project.donation[shiftId].status = "confirmed";
-        project.raised += Number(project.donation[shiftId].amount);
-        res.redirect('/project/' + projectId);
-    } else if (getPaymentStatus.status === "expired") {
-        project.donation[shiftId].status = "canceled";
-        res.redirect('/project/' + projectId);
-    } else {
-        res.render('crypto', { shift: getPaymentStatus, projectName: project.title });
+        if (getPaymentStatus.status === "settled") {
+            // Update project raised amount
+            project.donation[shiftId].status = "confirmed";
+            project.raised += Number(project.donation[shiftId].amount);
+            res.redirect('/project/' + projectId);
+        } else if (getPaymentStatus.status === "expired") {
+            project.donation[shiftId].status = "canceled";
+            res.redirect('/project/' + projectId);
+        } else {
+            res.render('crypto', { shift: getPaymentStatus, projectName: project.title });
+        }
+    } catch (err) {
+        if (verbose) console.error("Error in payment-status:", err);
+        res.render('error', { error: { title: "Error getting payment status", message: err.message } });
     }
 });
 
@@ -226,14 +211,14 @@ app.post('/create', (req, res) => {
     const { owner, title, description, goal, deadline, payWith, address } = req.body;
 
     // Validate inputs
-    if (!title || !description || !goal || !deadline) {
+    if (!owner || !title || !description || !goal || !deadline || !payWith || !address) {
         return res.render('create', { error: 'All fields are required' });
     }
     const payWithParsed = JSON.parse(payWith);
     const payWithCoin = payWithParsed[0].split('-');
     
     // TODO: Implement verification using wallet signature
-    // You'll need to verify the signature here before processing creation or crowfunding cannot be modified
+    // Need to verify the signature here before processing creation or crowfunding cannot be modified
     
     const newProject = {
         id: crowdfundingProjects.length > 0 ? Math.max(...crowdfundingProjects.map(p => p.id)) + 1 : 1,
@@ -249,10 +234,10 @@ app.post('/create', (req, res) => {
         address: address,
         donation: {}
     };
-    console.log(newProject)
     crowdfundingProjects.push(newProject);
     res.redirect(`/project/${newProject.id}`);
 });
+
 
 app.get('/edit/:id', (req, res) => {
     const project = crowdfundingProjects.find(p => p.id == req.params.id);
@@ -267,7 +252,7 @@ app.post('/edit/:id', (req, res) => {
     const { title, description, goal, deadline } = req.body;
 
     // TODO: Implement verification using wallet signature
-    // You'll need to verify the signature here before processing edit
+    // Need to verify the signature here before processing edit
 
     // Update project
     project.title = title;
@@ -278,24 +263,25 @@ app.post('/edit/:id', (req, res) => {
     res.redirect(`/project/${req.params.id}`);
 });
 
+
 // 404 handler
 app.use((req, res) => {
     res.status(404).render('404');
 });
 
-const port = process.env.PORT || 3000;
 
 // Start server
 let availableCoins;
 
-// TODO: update updateCoinsList to laod inside module and get data from function
+// For production store coins list in DB so no need to reload each server start
+// TODO: update updateCoinsList to laod inside module and get data from function like getCoinList()
 
 shiftProcessor.updateCoinsList("public/icons").then((response) => {
     console.log('Initial coins list loaded');
     availableCoins = response.availableCoins;
 
     app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
+        console.log(`HTTP Server running at http://localhost:${port}/`);
     });
 
     setInterval(async () => {
