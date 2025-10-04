@@ -13,12 +13,14 @@ html
 		meta(name="viewport" content="width=device-width, initial-scale=1.0")
 		link(rel='stylesheet' href='/main.css')
 		link(rel='stylesheet' href='/style.css')
+		link(rel='stylesheet' href='/table.css')
 
 	body 
 		div 
 			if(ratio)
 				h1 Crowdfunding #{projectName}
 				
+				//- For demo virtual invoice
 				if(!invoice)
 					h2 Error - No invoice Data
 
@@ -28,6 +30,7 @@ html
 					if(ratio.error.message)
 						p=ratio.error.message
 				else
+					-SHOP_SETTING = CURRENCY_SETTING
 					-totalCrypto = Number(invoice.cryptoTotal / Number(ratio.rate)).toFixed(8)
 					-invoiceTotal = Number(invoice.total).toLocaleString(SHOP_SETTING.locale,{style:'currency', currency: SHOP_SETTING.currency})
 					
@@ -73,6 +76,8 @@ html
 
 			//- Shift payment page
 			if(shift)
+				//- if(!invoice)
+				//- 	p Invoice error
 
 				if(shift.error)
 					h3 API error
@@ -131,9 +136,20 @@ html
 						
 						else if(shift.status == "settled")
 							h2.validated Payment completed !
+							//- REDIRECT TO SUCCESS PAGE
+							//- script.
+							//- 	const shiftData = !{JSON.stringify(shift)};
+							//- 	window.location.href = "/register-validation/"+shiftData.id;
 						
 						else if(shift.status == "expired")
 							h2.expired Payment address expired !
+							//- REDIRECT TO CANCEL PAGE
+							script.
+								//- const shiftData = !{JSON.stringify(shift)};
+								//- window.location.href = "/";
+							//- script.
+							//- 	const shiftData = !{JSON.stringify(shift)};
+							//- 	window.location.href = "/cancel/"+shiftData.id+"/#{invoice.id}";
 							
 						else
 							h2 Invalid status

@@ -1,8 +1,8 @@
-// views/donate.pug
+// views/create.pug
 doctype html
 html
   head
-    title Donate to #{project.title}
+    title Create Crowdfunding Project
     meta(charset='UTF-8')
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
     link(rel='stylesheet', href='/style.css')
@@ -12,25 +12,50 @@ html
       nav
         ul
           li: a(href="/") Home
-      
     br
-    h1 Donate to #{project.title}
+    h1 Create New Project
     br
+    if error
+      p.error #{error}
     
-    form(action=`/donate/${project.id}`, method='post' style="text-align:center;").project-card
-      label Donor:
-      input(type='string', name='donor', required)
+    form(action='/create', method='post')
+      h2 Crowdfunding detail
+      label Creator:
+      input(type='text', name='owner', required)
       br
       br
-      label Amount ($):
-      input(type='number', name='amount', required)
-      
-
+      label Title:
+      input(type='text', name='title', required)
+      br
+      br
+      label Description:
+      textarea(name='description', required)
+      br
+      br
+      label Goal ($):
+      input(type='number', name='goal', required)
+      br
+      br
+      label Deadline:
+      input(type='date', name='deadline', required)
+      br
+      br
+      br
+      h2 Payment option
       if(coinsDepositList)
         include include/coins-select.pug
 
+      
+        br
+        br
+        label Wallet address:
+        input(type='text', name='address', required)
+        br
+        br
+        label Wallet Memo (optinal):
+        input(type='text', name='memo')
+        br
+        br
+        button(type='submit').cool-button Create Project
 
-        br
-        br
-        button(type='submit').cool-button Preview Payment
 

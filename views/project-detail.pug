@@ -5,6 +5,7 @@ html
     title #{project.title} - Crowdfunding
     meta(charset='UTF-8')
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    link(rel='stylesheet', href='/table.css')
     link(rel='stylesheet', href='/style.css')
   body
     .menu-container
@@ -30,21 +31,34 @@ html
         .progress(style=`width: ${(project.raised/project.goal)*100}%`)
       h3(style="text-align:center;") #{Math.round((project.raised/project.goal)*100)}% funded
 
-    if(project.deadline > new Date())
-      a(href=`/donate/${project.id}`) 
-        button.cool-button Donate Now
+      if(project.deadline > new Date())
+        div(style="text-align:center; margin-top:20px;")
+          a(href=`/donate/${project.id}`) 
+            button.cool-button Donate Now
 
-    br
-    br
+
     if(project.donation)
       if(Object.keys(project.donation).length > 0)
+        h2 Donations
+        div
+          table
+            tr
+              th Date
+              th Donor
+              th Amount
+              th Shift ID
+              th Status
+            each donor in Object.keys(project.donation).reverse()
+              -donorData = project.donation[donor]
+              tr
+                td #{new Date(donorData.date).toLocaleDateString('en-US', {year: 'numeric', month: '2-digit', day: '2-digit'})}
+                td #{donorData.donor}
+                td #{donorData.amount}
+                td #{donor.slice(8, -1)}
+                td
+                  if(donorData.status == "waiting")
+                    span Waiting
+                  else if(donorData.status == "confirmed")
+                    span Confirmed
 
-        each donor in project.donation
-
-          if(donor.status == "waiting")
-            h2 Receiving donation 
-            p=JSON.stringify(donor)
-          if(donor.status == "confirmed")
-            h2 Received donation 
-            p=JSON.stringify(donor)
-
+    

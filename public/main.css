@@ -58,33 +58,6 @@ div {
   background-color: #218838;
 }
 
-/* Order table */
-table {
-  width: 70%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-left: auto;
-  margin-right: auto;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-}
-
-th, td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
-th {
-  background-color: #f1f1f1;
-  font-weight: bold;
-}
-
-tr:last-child td {
-  border-bottom: none;
-}
 
 /* Status messages */
 #MESSAGE {

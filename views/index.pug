@@ -37,4 +37,7 @@ html
         .project-card
           h2 #{project.title}
           p Expired: #{project.deadline.toLocaleDateString()}
+          //- p #{project.description}
+          //- p Goal: $#{project.goal} | Raised: $#{project.raised}
+          //- p Deadline: #{project.deadline.toLocaleDateString()}
           a(href=`/project/${project.id}`).cool-button View Details

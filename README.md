@@ -4,8 +4,7 @@ This Node.js project demonstrates integration with the [SideShift API](https://s
 
 This platform allows users to create funding requests and accept donations using any of the 250+ cryptocurrencies supported by the SideShift API, all without requiring user accounts. Users authenticate through wallet signatures to manage their funding requests and add messages, while donors can contribute seamlessly using their preferred cryptocurrency from the SideShift API ecosystem.
 
-**Revenue Model**:
-How it works:
+**Revenue Model**: How it works
 - Platform owners earn 0-2% commission on every transaction processed through SideShift API
 - Fees are collected in XAI tokens (SideShift's native cryptocurrency) and directly credited to your SideShift account
 - XAI tokens can be exchanged on the SideShift platform
@@ -77,7 +76,7 @@ const cryptoPoller = new PaymentPoller({
 ### Start server
 
 ```bash
-npm install express pug fs
+npm install express path pug
 node sidefunding.js
 ```
 
