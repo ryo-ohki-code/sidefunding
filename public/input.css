@@ -151,6 +151,15 @@ label::after {
 }
 
 /* Custom checkbox and radio */
+.checkbox-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
 .custom-checkbox,
 .custom-radio {
     display: flex;
