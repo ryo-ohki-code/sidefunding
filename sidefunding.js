@@ -310,7 +310,7 @@ app.use((req, res) => {
     res.status(404).render('404');
 });
 
-
+const ICON_PATH = './public/icons';
 
 // Start server after receiving the coin list from sideshift API
 shiftProcessor.updateCoinsList("public/icons").then((response) => {
