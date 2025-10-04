@@ -34,10 +34,17 @@ wget https://raw.githubusercontent.com/ryo-ohki-code/sideshift-payment-integrati
 How to get your API credentials?
 Visit [Sideshift Account Page](https://sideshift.ai/account) and dind your SideShift ID and Secret (private key) in the dashboard.
 
+
+**Set .env file**
+```
+SIDESHIFT_ID=Your_Sideshift_ID 
+SIDESHIFT_SECRET=Your_Sideshift_Secret
+```
+
 ### API Credentials
 ```
-const SIDESHIFT_ID = "Your_sideshift_ID"; 
-const SIDESHIFT_SECRET = "Your_shideshift_secret";
+const SIDESHIFT_ID = process.env.SIDESHIFT_ID; // "Your_sideshift_ID"; 
+const SIDESHIFT_SECRET = process.env.SIDESHIFT_SECRET; //"Your_shideshift_secret";
 const SIDESHIFT_CONFIG = {
 	secret: SIDESHIFT_SECRET,
 	id: SIDESHIFT_ID,
