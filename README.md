@@ -76,7 +76,7 @@ const cryptoPoller = new PaymentPoller({
 ### Start server
 
 ```bash
-npm install express fs pug
+npm install express fs pug dotenv
 node sidefunding.js
 ```
 
