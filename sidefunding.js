@@ -4,7 +4,7 @@ require('dotenv').config({ quiet: true }); //  debug: true
 
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = 3003;
 
 // Middleware
 app.set('view engine', 'pug');
@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 const verbose = true;
 
 const SIDESHIFT_CONFIG = {
-    path: "./sideshiftAPI.js", // Path to module file
+    path: "./../../Sideshift_API_module/sideshiftAPI.js", // Path to module file
     secret: process.env.SIDESHIFT_SECRET, // "Your_SideShift_secret";
     id: process.env.SIDESHIFT_ID, // "Your_SideShift_ID"; 
     commissionRate: "0.5", // Optional - commision rate setting from 0 to 2
@@ -29,17 +29,22 @@ CURRENCY_SETTING.currency = "USD"; // USD EUR CNY INR JPY ... use ISO4217 curren
 CURRENCY_SETTING.USD_REFERENCE_COIN = "USDT-bsc"
 
 // Load the crypto payment processor
-const ShiftProcessor = require('./ShiftProcessor.js')
+const ShiftProcessor = require('./../Shop_integration/Wave_1/ShiftProcessor.js')
 const shiftProcessor = new ShiftProcessor({ sideshiftConfig: SIDESHIFT_CONFIG, currencySetting: CURRENCY_SETTING });
 
 // Demo function needed to load PaymentPoller
-function resetCryptoPayment(invoiceId, shiftId, cryptoPaymentStatus) {
+function resetCryptoPayment(projectId, shiftId, cryptoPaymentStatus) {
+    const project = crowdfundingProjects.find(p => p.id == projectId);
+    delete project.donation["shiftId_" + shiftId];
 }
-function confirmCryptoPayment(invoiceId, shiftId) {
+function confirmCryptoPayment(projectId, shiftId) {
+    const project = crowdfundingProjects.find(p => p.id == projectId);
+    project.donation["shiftId_" + shiftId].status = "confirmed";
+    project.raised += Number(project.donation["shiftId_" + shiftId].amount);
 }
 
 // Load the payment poller system
-const PaymentPoller = require('./CryptoPaymentPoller.js');
+const PaymentPoller = require('./../Shop_integration/Wave_1/CryptoPaymentPoller.js');
 const cryptoPoller = new PaymentPoller({ shiftProcessor, intervalTimeout: 30000, resetCryptoPayment, confirmCryptoPayment });
 
 let availableCoins;
@@ -218,13 +223,13 @@ app.get('/payment-status/:shiftId/:projectId', async (req, res) => {
 
         if (getPaymentStatus.status === "settled") {
             // Update project raised amount
-            project.donation["shiftId_" + shiftId].status = "confirmed";
-            project.raised += Number(project.donation["shiftId_" + shiftId].amount);
+            // project.donation["shiftId_" + shiftId].status = "confirmed";
+            // project.raised += Number(project.donation["shiftId_" + shiftId].amount);
 
             res.redirect('/project/' + projectId);
         } else if (getPaymentStatus.status === "expired") {
             // Delete data if no donation
-            delete project.donation["shiftId_" + shiftId];
+            // delete project.donation["shiftId_" + shiftId];
 
             res.redirect('/project/' + projectId);
         } else {
