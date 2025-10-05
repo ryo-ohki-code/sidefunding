@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 const verbose = true;
 
 const SIDESHIFT_CONFIG = {
-    path: "./../../Sideshift_API_module/sideshiftAPI.js", // Path to module file
+    path: "./sideshiftAPI.js", // Path to module file
     secret: process.env.SIDESHIFT_SECRET, // "Your_SideShift_secret";
     id: process.env.SIDESHIFT_ID, // "Your_SideShift_ID"; 
     commissionRate: "0.5", // Optional - commision rate setting from 0 to 2
@@ -29,7 +29,7 @@ CURRENCY_SETTING.currency = "USD"; // USD EUR CNY INR JPY ... use ISO4217 curren
 CURRENCY_SETTING.USD_REFERENCE_COIN = "USDT-bsc"
 
 // Load the crypto payment processor
-const ShiftProcessor = require('./../Shop_integration/Wave_1/ShiftProcessor.js')
+const ShiftProcessor = require('./ShiftProcessor.js')
 const shiftProcessor = new ShiftProcessor({ sideshiftConfig: SIDESHIFT_CONFIG, currencySetting: CURRENCY_SETTING });
 
 // Demo function needed to load PaymentPoller
@@ -44,7 +44,7 @@ function confirmCryptoPayment(projectId, shiftId) {
 }
 
 // Load the payment poller system
-const PaymentPoller = require('./../Shop_integration/Wave_1/CryptoPaymentPoller.js');
+const PaymentPoller = require('./CryptoPaymentPoller.js');
 const cryptoPoller = new PaymentPoller({ shiftProcessor, intervalTimeout: 30000, resetCryptoPayment, confirmCryptoPayment });
 
 let availableCoins;
