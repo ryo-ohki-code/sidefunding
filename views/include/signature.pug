@@ -1,0 +1,161 @@
+//- signature.pug
+base(href=".")
+
+script(type="module").
+    import { ethers } from "/js/ethers-6-7-0.min.js";
+
+    //- async function setMetamaskAddress() {
+    //-     if (typeof window.ethereum === 'undefined') {
+    //-         alert('MetaMask is not installed!');
+    //-         return;
+    //-     }
+    //-     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    //-     const account = accounts[0];
+
+    //-     document.querySelector('input[name="address"]').value = account;
+    //-     document.getElementById('ADD_WALLET').style.display = 'none';
+    //- }
+
+    async function getCurrentNetwork() {
+        try {
+            // Get network details
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const network = await provider.getNetwork();
+            
+            // Common network mappings
+            const networks = {
+                1: 'ethereum',
+                5: 'Goerli Testnet',
+                11155111: 'Sepolia Testnet',
+                137: 'Polygon Mainnet',
+                80001: 'Polygon Mumbai Testnet',
+                42161: 'Arbitrum One',
+                43114: 'Avalanche',
+                10: 'Optimism',
+                56: 'bsc',
+                250: 'Fantom Opera'
+            };
+            
+            console.log('Current Network:', {
+                chainId: network.chainId,
+                name: network.name,
+                fullName: networks[network.chainId] || 'Unknown Network'
+            });
+            
+            return {
+                chainId: network.chainId,
+                name: network.name,
+                fullName: networks[network.chainId] || 'Unknown Network'
+            };
+            
+        } catch (error) {
+            console.error('Error getting network:', error);
+            throw error;
+        }
+    }
+
+
+
+    async function connectMetaMask( setting = null ) {
+        if (typeof window.ethereum === 'undefined') {
+            alert('MetaMask is not installed!');
+            return;
+        }
+
+        try {
+            // Request account access
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const account = accounts[0];
+            const addressInput = document.querySelector('input[name="address"]');
+            let fundingAddress;
+
+            // set base signature mode
+            if (document.getElementById('sefSigned')) document.getElementById('sefSigned').value = "false";
+
+            // Manual check if funding address and Metamask address are same
+            if(setting && setting === "other"){
+                //- Sign with another wallet
+                if (document.getElementById('sefSignedAddress')) {
+                    document.getElementById('sefSignedAddress').value = account;
+                    if (document.getElementById('sefSigned')) document.getElementById('sefSigned').value = "true";
+                } else{
+                    //- Sign with same wallet
+                    document.querySelector('input[name="address"]').value = account;
+                }
+            } else{
+                // If user use 'Sign and set address with MetaMask' and address are not equal
+                if(addressInput){
+
+                    fundingAddress = addressInput?.value;
+                    if(fundingAddress && fundingAddress.toLowerCase() !== account.toLowerCase()) {
+                        alert(`Warning: MetaMask and Funding addresses are different.\nFunding Wallet:\n${fundingAddress}\n\nSigning MetaMask address:\n${account}\n\nUse: Next Option`);
+                        return;
+                        //- addressInput.value = account;
+                    }
+                    addressInput.value = account;
+                    if (document.getElementById('sefSigned')) document.getElementById('sefSigned').value = "false";
+                }
+            }
+            
+
+            // Create a message to sign TODO must set random one from server side
+            const array = crypto.getRandomValues(new Uint8Array(64));
+            const message = btoa(String.fromCharCode(...array)).replace(/[+/]/g, '').substring(0, 64)
+
+            // Get the provider and signer
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            
+            // Sign the message using ethers.js
+            const signature = await signer.signMessage(message);
+            
+            // Populate the signature field
+            document.getElementById('secretMessage').value = message;
+            document.getElementById('secretkey').value = signature;
+            
+            // Set visibility
+            document.getElementById('SIGN').style.display = 'none';
+            if(document.getElementById('SIGN_MSG')) document.getElementById('SIGN_MSG').style.display = 'none';
+            
+            // Update form validation
+            if (typeof formVerification === 'function') {
+                formVerification();
+            }
+
+            //- alert('Successfully signed with MetaMask!');
+        } catch (error) {
+            console.error('Error signing with MetaMask:', error);
+            alert('Failed to sign with MetaMask: ' + error.message);
+        }
+    }
+
+    // Make the function available globally so onclick works
+    window.connectMetaMask = connectMetaMask;
+    window.getCurrentNetwork = getCurrentNetwork;
+    //- window.setMetamaskAddress = setMetamaskAddress;
+
+
+
+
+
+
+
+//- async function isOnMainnet() {
+//-     try {
+//-         const network = await provider.getNetwork();
+//-         return network.chainId === 1; // Ethereum Mainnet
+//-     } catch (error) {
+//-         console.error('Error checking network:', error);
+//-         return false;
+//-     }
+//- }
+
+//- async function isOnSpecificNetwork(targetChainId) {
+//-     try {
+//-         const network = await provider.getNetwork();
+//-         return network.chainId === targetChainId;
+//-     } catch (error) {
+//-         console.error('Error checking network:', error);
+//-         return false;
+//-     }
+//- }

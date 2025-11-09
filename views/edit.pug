@@ -1,40 +1,308 @@
-// views/edit.pug
+//- Edition page
 doctype html
 html
   head
+    meta(name="robots" content="noindex")
+
+    include include/header.pug
+    include include/header-css.pug
+
     title Edit Project
-    meta(charset='UTF-8')
-    meta(name='viewport', content='width=device-width, initial-scale=1.0')
-    link(rel='stylesheet', href='/style.css')
-    link(rel='stylesheet', href='/input.css')
+
+    link(rel='stylesheet', href='/css/style.css')
+    link(rel='stylesheet', href='/css/input.css')
+    link(rel='stylesheet', href='/js/EasyMDE/easymde.min.css')
+    
+    style.
+      .form-inline {  margin-bottom: 25px; }
+      .form-inline label { display: inline-block; width:45%; margin-left: auto; margin-right: auto; }
+      .form-inline input { margin-left: auto; margin-right: auto; }
+
+
   body
     .menu-container
       nav
         ul
           li: a(href="/") Home
-    br
-    h1 Edit Project
-    br
-    form(action=`/edit/${project.id}`, method='post' style="text-align:center;").project-card
-      label Title:
-      input(type='text', name='title', value=project.title, required)
+          li: a(href=`/delete/${project.id}`) Delete
+          li: a(href="javascript:window.history.back()") Back to project page	
+
+    div.container
+      h1 Edit Funding Campaign
       br
-      br
+      if error
+        p.error #{error}
       
-      label Description:
-      textarea(name='description', required)= project.description
-      br
-      br
+        
+      //- Limit update after deadline
+      - deadLine = Number(project.projectData.deadline.getTime())
+      - currentDate = Number(Date.now())
+      if(currentDate < deadLine)
 
-      label Goal ($):
-      input(type='number', name='goal', value=project.goal, required)
-      br
-      br
+        form(action=`/edit/${project.id}`, method='post', enctype='multipart/form-data')#editForm
+          //- if(project.donations.length == 0 && project.goal.raisedUsd == 0)
+          //-   button(type="button", onclick="deleteProject()" style="float:right;").cool-button.red Delete my project
+          //-   br
+          //-   br
 
-      label Deadline:
-      input(type='date', name='deadline', value=project.deadline.toISOString().split('T')[0], required)
-      br
-      br
+          label Title:
+          input(type='text', name='title', value=project.projectData.title, required)
+          br
+          br
 
 
-      button(type='submit').cool-button Update Project
+
+          div.simpleMDE-container
+            label Description:
+            textarea(name='description', required)#description= project.projectData.description
+          br
+
+
+          .form-inline
+            label Country:
+              br
+              input(type='text', name='country', value=project.owner.country)
+
+            label City:
+              br
+              input(type='text', name='city', value=project.owner.city)
+
+
+
+
+          label Goal ($):
+          input(type='number', name='goal', value=project.goal.goalUsd, required)
+          br
+          br
+
+          //- Verify if deadline is at more than 1 month from now
+          - const deadlineValue = project.projectData.deadline.toISOString().split('T')[0];
+          - const isValid = (function() {
+          -   if (!deadlineValue) return false;
+          -   const selectedDate = new Date(deadlineValue);
+          -   const oneMonthFromNow = new Date();
+          -   oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+          -   // Convert to timestamps for easy comparison
+          -   const selectedTimestamp = selectedDate.getTime();
+          -   const oneMonthTimestamp = oneMonthFromNow.getTime();
+          -   return selectedTimestamp > oneMonthTimestamp;
+          - })();
+
+          if(deadlineValue)
+            label Deadline:
+            input(type='date', name='deadline', value=project.projectData.deadline.toISOString().split('T')[0], required)
+            br
+            br
+
+
+
+
+          label Links:
+          label Facebook
+          input(type='text', name='facebookLink' value=project.projectData.links.facebook)
+          br
+          label X
+          input(type='text', name='xLink' value=project.projectData.links.x)
+          br
+          label Reddit
+          input(type='text', name='redditLink' value=project.projectData.links.reddit)
+          br
+          label Website
+          input(type='text', name='websiteLink' value=project.projectData.links.website)
+          br
+          br
+
+
+          //- TODO Change funding coin and wallet ???
+
+
+          label Add Images
+          input(type='file', name='images', multiple, accept='image/*')#imageInput
+          br
+          br
+
+          if(project.projectData.images && project.projectData.images.length > 0)
+            label Remove Images
+            .project-images
+              each image, index in project.projectData.images
+                div(style="display:inline-block;")
+                  img(src=image.url alt=image.originalName, style='max-height: 250px; margin: 10px;')
+                  br
+                  //- input(type="checkbox" name="img_"+index value=image.url)
+                  input(type="checkbox" name="imagesRemove[]" value=image.url)
+
+            br
+            br
+
+
+          h3 Display my wallet address
+          div
+            - var isChecked = project.wallet.displayWallet == true
+
+
+            label(for="yes" style="display:inline-block; margin-right:10px;") yes
+              input(type="radio" id="yes" name="displayWallet" value="true" checked=isChecked)
+
+            label(for="no" style="display:inline-block; margin-left:10px;") no
+              input(type="radio" id="no" name="displayWallet" value="false" checked=!isChecked)
+
+
+
+
+          button(type='button', onclick='connectMetaMask()')#SIGN.btn Sign with MetaMask
+          div#SIGN_MSG
+            p(onclick="toggleVisibility('SIGNATURE')") Or 
+              span(style="color:blue; cursor:pointer;") click here 
+              | to Self-Sign
+
+          br
+          div#SIGNATURE.hidden
+            label Owner Signature:
+            input(type='text', name='signature', required)#secretkey
+            input(type="hidden" name="message")#secretMessage
+            br
+            br
+            
+          br
+          button(type='submit' disabled)#submitBtn.cool-button.disabled Update Project
+
+
+
+
+
+        //- add error on inputs when required
+        script(src="/js/inputs.js")
+
+
+
+
+      else 
+        h2 This funding campaing is over
+        br
+        br
+        a(href="javascript:window.history.back()"): button(type='button').cool-button Go Back
+        br
+        br
+        //- if(project.donations.length == 0 && project.goal.raisedUsd == 0)
+        //- form(action=`/delete/${project.id}`, method='post')
+        //-   h2 Delete my project 
+
+        //-   button(type='button', onclick='connectMetaMask()')#SIGN.btn Sign with MetaMask
+        //-   div#SIGN_MSG
+        //-     p(onclick="toggleVisibility('SIGNATURE')") Or 
+        //-       span(style="color:blue; cursor:pointer;") click here 
+        //-       | to Self-Sign
+
+        //-   br
+        //-   div#SIGNATURE.hidden
+        //-     label Owner Signature:
+        //-     input(type='text', name='signature', required)#secretkey
+        //-     input(type="hidden" name="message")#secretMessage
+        //-     br
+        //-     br
+        //-   button(type="submit" disabled)#submitBtn.cool-button.red.disabled Delete
+
+
+
+
+
+    include include/footer.pug
+
+
+include include/signature.pug
+script(src="/js/toggleVisibility.js")
+
+script(src="/js/EasyMDE/easymde.min.js")
+
+script.
+  const toolbarOption = ["bold", "italic", "heading", "|", "quote", "ordered-list", "unordered-list", "|", "preview", "fullscreen", "|", "guide"];
+  const data = !{JSON.stringify(project)};
+  var simplemde = new EasyMDE({ element: document.getElementById("description"), status: ["autosave", "lines", "words", "cursor"],
+    toolbar: toolbarOption,
+    spellChecker: false,
+    height: "400px",
+    autosave: {
+      enabled: true,
+      uniqueId: data.id,
+      delay: 1000,
+    } 
+  });
+  
+//- //- Delete button
+//- if(project.donations.length == 0 && project.goal.raisedUsd == 0 && project.status ==  "active")
+//-   script.
+//-     const data = !{JSON.stringify(project)};
+//-     function deleteProject(){
+//-       if(confirm('Are you sure you want to delete this project? This action cannot be undone.')){
+//-         const deleteForm = document.createElement('form');
+//-         deleteForm.method = 'post';
+//-         deleteForm.action = `/delete/${data.id}`;
+
+//-         const signatureInput = document.createElement('input');
+//-         signatureInput.type = 'hidden';
+//-         signatureInput.name = 'signature';
+//-         signatureInput.value = document.getElementById('secretkey').value;
+
+//-         const messageInput = document.createElement('input');
+//-         messageInput.type = 'hidden';
+//-         messageInput.name = 'message';
+//-         messageInput.value = document.getElementById('secretMessage').value;
+
+//-         deleteForm.appendChild(signatureInput);
+//-         deleteForm.appendChild(messageInput);
+//-         document.body.appendChild(deleteForm);
+//-         deleteForm.submit();
+//-       }
+//-     }
+
+
+
+//- File number limiter
+script.
+  document.getElementById('imageInput').addEventListener('change', function(e) {
+    const files = e.target.files;
+    
+    if (files.length > 5) {
+        alert('You can only select up to 5 images');
+        // Clear the selected files
+        e.target.value = '';
+        return false;
+    }
+
+  });
+
+
+  function validateForm() {
+    // Validate signature
+    const signature = document.getElementById("secretkey").value;
+    if (signature === '') {
+      //- errorMessage.push('Please sign with MetaMask or custom key');
+      isValid = false;
+    } else if (signature < 16) {
+      //- errorMessage.push('Signature must be at least 16 characters');
+      isValid = false;
+    }else{
+      return true
+    }
+  }
+
+  const submitButton = document.getElementById("submitBtn");
+  submitButton.disabled = true;
+
+  function formVerification(){
+    if(validateForm()){
+      submitButton.classList.remove('disabled');
+      submitButton.disabled = false;
+    } else{
+      if(!submitButton.classList.contains('disabled')) submitButton.classList.add('disabled');
+      if(submitButton.disabled === false) submitButton.disabled = true;
+    }
+  }
+
+  const form = document.getElementById('editForm');
+  const inputs = form.querySelectorAll('input, textarea, select');
+  inputs.forEach(input => {
+    input.addEventListener('input', function() {
+      formVerification();
+    });
+  });

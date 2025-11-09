@@ -2,63 +2,217 @@
 doctype html
 html
   head
-    title #{project.title} - Crowdfunding
-    meta(charset='UTF-8')
-    meta(name='viewport', content='width=device-width, initial-scale=1.0')
-    link(rel='stylesheet', href='/table.css')
-    link(rel='stylesheet', href='/style.css')
+    include include/header.pug
+    include include/header-css.pug
+    
+    title #{project.projectData.title}
+
+    link(rel='stylesheet', href='/css/table.css')
+    link(rel='stylesheet', href='/css/style.css')
+    link(rel='stylesheet', href='/js/SimpleSlider/simpleSlider.css')
+
   body
     .menu-container
       nav
         ul
           li: a(href="/") Home
+          li: a(href=`/projects`) Projects
           li: a(href=`/edit/${project.id}`) Edit Project
 
-    br
-    .project-card
-      h1 #{project.title}
-      p: i Created #{project.creation.toLocaleDateString()} by #{project.owner}
+
     
-      p #{project.description}
-      p: b Goal: $#{project.goal}
-      p: b Raised: 
-        span(style="color:darkgreen;") $#{project.raised}
-      p: b Remaining: 
-        span(style="color:darkred;") $#{Number(project.goal) - Number(project.raised)}
-      p Deadline: #{project.deadline.toLocaleDateString()}
-      
-      .progress-bar
-        .progress(style=`width: ${(project.raised/project.goal)*100}%`)
-      h3(style="text-align:center;") #{Math.round((project.raised/project.goal)*100)}% funded
-
-      if(project.deadline > new Date())
-        div(style="text-align:center; margin-top:20px;")
-          a(href=`/donate/${project.id}`) 
-            button.cool-button Donate Now
+    div.container
+      br
+      .project-card
+        //- Title section
+        .flex-div(style="justify-content: flex-start;")
+          img(src=project.owner.avatar width="100px" style="")
+          div
+            h1 #{project.projectData.title}
+            p: i Created #{project.projectData.creation.toLocaleDateString()} by #{project.owner.name}
+            p
+              b #{project.owner.country} 
+              i #{project.owner.city}
 
 
-    if(project.donation)
-      if(Object.keys(project.donation).length > 0)
-        h2 Donations
-        div
-          table
-            tr
+        .section-divider
+
+
+        //- Goal section
+        p: b Goal: $#{project.goal.goalUsd} / #{project.wallet.coin} (#{project.wallet.network}) #{project.goal.goalCryptocurrency}
+        p Deadline: #{project.projectData.deadline.toLocaleDateString()}
+        .section-divider
+
+
+        //- Description section
+        div(style="white-space: pre-line; text-align:justify; width:90%; margin: 0 auto;")#description
+          //- textarea #{project.projectData.description}
+        //- p(style="white-space: pre-line; text-align:justify;") #{project.projectData.description}
+
+
+        //- Images section
+        if(project.projectData.images && project.projectData.images.length > 0)
+          if(project.projectData.images.length === 1)
+            .project-images
+              each image in project.projectData.images
+                img(src=image.url alt=image.originalName)
+          else 
+            .slider-container
+              #slider.slider
+                each image in project.projectData.images
+                  .slide
+                    img(src=image.url alt=image.originalName)
+              .slider-nav.prev &#10094;
+              .slider-nav.next &#10095;
+              #indicators.slide-indicators
+
+        .section-divider_2
+
+
+
+        //- Link section
+        - var hasLinks = Object.keys(project.projectData.links).some(function(key) { return project.projectData.links[key]; })
+        .flex-div
+          if(hasLinks)
+            div
+              h3 Where to Find Us 
+              each link in Object.keys(project.projectData.links).reverse()
+                if(project.projectData.links[link])
+                  div(style="display:inline-block; margin: 10px;")
+                    div(style="text-align:center;").link-button
+                      a(href=project.projectData.links[link])
+                        if(link == "website")
+                          i(class="fa-solid fa-globe fa-3x")
+                        else if(link == "x")
+                          i(class="fa-brands fa-x-twitter fa-3x")
+                        else
+                          i(class="fa-brands fa-"+link+" fa-3x")
+                        //- img(src="/img/social/"+link+".svg" width="50px")
+                        
+          form(style="all:unset;" action=`/report/${project.id}` method='post')
+            button(type="submit", onclick="return confirm('Are you sure you want to report this project? This action cannot be undone.')" style="padding:10px 15px; font-size: 14px;").cool-button.red Report Abuse
+
+        .section-divider_2
+
+
+        //- Fund raised Section
+        p: b Raised: 
+          if(Number(project.goal.raisedUsd) === 0)
+            span(style="color:darkred;") $#{project.goal.raisedUsd} / #{project.wallet.coin} #{project.goal.raisedCryptocurrency}
+          else
+            span(style="color:darkgreen;") $#{project.goal.raisedUsd.toFixed(2)} / #{project.wallet.coin} #{project.goal.raisedCryptocurrency}
+
+        p: b Remaining: 
+          span(style="color:darkred;") $#{(Number(project.goal.goalUsd) - Number(project.goal.raisedUsd)).toFixed(2)} 
+          span(style="color:black;") / 
+          span(style="color:darkred;") #{project.wallet.coin} #{(Number(project.goal.goalCryptocurrency) - Number(project.goal.raisedCryptocurrency)).toFixed(8)}
+
+        //- Display wallet section
+        if(project.wallet.displayWallet)
+          p 
+            b Wallet (#{project.wallet.network}): 
+            | #{project.wallet.address}
+
+
+        //- .section-divider
+
+        br
+
+        - fundingPercent = (project.goal.raisedUsd/project.goal.goalUsd) * 100
+        .progress-bar
+          .progress(style=`width: ${fundingPercent}%`)
+        h3(style="text-align:center;") #{Math.round(fundingPercent)}% funded
+
+        .section-divider
+
+
+        h3(style="margin-bottom:10px;") Share this campaign
+        .flex-div
+          div(style="display:flex;")
+            div.link-button
+              a(id="twitter-share" target="_blank" style="color:darkblue;")
+                i.fa-brands.fa-x-twitter.fa-3x
+            div.link-button
+              a(id="reddit-share" target="_blank" style="color:darkblue;")
+                i.fa-brands.fa-reddit.fa-3x
+            div.link-button
+              a(id="facebook-share" target="_blank" style="color:darkblue;")
+                i.fa-brands.fa-facebook.fa-3x
+          
+          
+
+          //- Donate Button
+          if(project.projectData.deadline > new Date())
+            div(style="text-align:center; margin-top:20px;")
+              a(href=`/donate/${project.id}`) 
+                button.cool-button Donate Now
+
+
+      //- Donation section
+      if(project.donations)
+        if(project.donations.length > 0)
+          div.project-card
+            h2(style="text-align:center;") Donations
+            table(style="width:100%;")
               th Date
               th Donor
-              th Amount
-              th Shift ID
+              th Amount ($)
+              th Amount (#{project.wallet.coin})
+              th From
+              //- th Shift ID
               th Status
-            each donor in Object.keys(project.donation).reverse()
-              -donorData = project.donation[donor]
               tr
-                td #{new Date(donorData.date).toLocaleDateString('en-US', {year: 'numeric', month: '2-digit', day: '2-digit'})}
-                td #{donorData.donor}
-                td #{donorData.amount}
-                td #{donor.slice(8, -1)}
-                td
-                  if(donorData.status == "waiting")
-                    span Waiting
-                  else if(donorData.status == "confirmed")
-                    span Confirmed
 
-    
+              each donor in project.donations.reverse()
+                td #{new Date(donor.date).toLocaleDateString('en-US', {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})}
+                td #{donor.donor}
+                td #{donor.amountUsd.toFixed(2)}
+                td #{donor.amountCrypto}
+
+                if(donor.currency.coin)
+                  td #{donor.currency.coin} (#{donor.currency.network})
+                else 
+                  td -
+
+                td 
+                  if(donor.status == "waiting")
+                    span Waiting
+                  else if(donor.status == "success")
+                    span(style="color:darkgreen;") Confirmed
+                  else if(donor.status == "error")
+                    span(style="color:darkred;") Error
+                  else 
+                   span #{donor.status}
+                tr
+
+    include include/footer.pug
+
+
+
+//- Font Awesome
+script(src="/js/all.min.js")
+
+//- Marked
+script(src="/js/EasyMDE/marked.umd.js")
+//- script(src="https://cdn.jsdelivr.net/npm/marked/marked.min.js")
+
+//- Slider
+if(project.projectData.images.length > 1)
+  script(src="/js/SimpleSlider/simpleSlider.js")
+
+//- Parse description with Marked and generare Share links
+script.
+  const data = !{JSON.stringify(project)}
+  document.getElementById('description').innerHTML = marked.parse(data.projectData.description.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/,""));
+
+  function generateLinks() {
+    const shareURL = "https://simple-funding.net/";
+    const shareTitle = "Help me Fund my project";
+
+    const link = shareURL+"project/" + data.id;
+
+    document.getElementById('twitter-share').href = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(shareTitle);
+    document.getElementById('reddit-share').href = 'https://reddit.com/submit?url=' + encodeURIComponent(link) + '&title=' + encodeURIComponent(shareTitle);
+    document.getElementById('facebook-share').href = 'https://www.facebook.com/sharer.php?u=' + encodeURIComponent(link);
+  }
+  generateLinks();

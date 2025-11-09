@@ -1,39 +1,71 @@
 // views/donate.pug
 doctype html
 html
-  head
-    title Donate to #{project.title}
-    meta(charset='UTF-8')
-    meta(name='viewport', content='width=device-width, initial-scale=1.0')
-    link(rel='stylesheet', href='/style.css')
-    link(rel='stylesheet', href='/input.css')
-  body
-    .menu-container
-      nav
-        ul
-          li: a(href="/") Home
-      
-    br
-    h1 Donate to #{project.title}
-    br
-    
-    form(action=`/donate/${project.id}`, method='post' style="text-align:center;").project-card
-      label Donor:
-      input(type='string', name='donor', required)
-      br
-      br
-      label Amount ($):
-      input(type='number', name='amount', required)
-      
+	head
+		include include/header.pug
+		meta(name="robots" content="noindex")
+		
+		include include/header-css.pug
 
-      if(coinsDepositList)
-        br
-        br
-        include include/coins-select.pug
+		title Donate to #{project.projectData.title}
+		
+		link(rel='stylesheet', href='/css/input.css')
+		//- Uncomment this css to use the Custom Integration
+		//- link(rel='stylesheet', href='/css/modal-style.css')
+		link(rel='stylesheet', href='/css/style.css')
+
+	body
+		.menu-container
+			nav
+				ul
+					li: a(href="/") Home
+					li: a(href="javascript:window.history.back()") Back to project page	
+
+		div.container
+			h1 Donate to:
+				br
+				| #{project.projectData.title}
+			br
+			//- Uncomment to use the Custom Integration
+			//- form(action=`/donate-custom/${project.id}`, method='post')
+			//- 	h2 Using Custom Integration
+			//- 	label Donor (optional):
+			//- 	input(type='string', name='donor')
+			//- 	br
+			//- 	br
+			//- 	label amount ($):
+			//- 	input(type='number', name='amountUsd', required)
+			//- 	br
+			//- 	br
+			//- 	label Message (optional):
+			//- 	textarea(name="message")
+					
+			//- 	br
+			//- 	br
+			//- 	h2 Payment option
+			//- 	if(coinsDepositList)
+			//- 		include include/coins-modal.pug
 
 
-        br
-        br
-        button(type='submit').cool-button Preview Payment
+			//- 	br
+			//- 	button(type='submit').cool-button Preview Payment
 
 
+			form(action=`/donate-checkout/${project.id}`, method='post').fade-in-form
+				h2 Using Checkout
+				label Donor (optional):
+				input(type='string', name='donor')
+				br
+				br
+				label amount ($):
+				input(type='number', name='amountUsd', required)
+				br
+				br
+				label Message (optional):
+				textarea(name="message")
+					
+				br
+				br
+				button(type='submit').cool-button Payment
+
+		include include/footer.pug

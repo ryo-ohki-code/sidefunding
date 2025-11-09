@@ -1,0 +1,213 @@
+/* ImageCropper.js CSS */
+.centered {
+    padding: 40px;
+    text-align: center;
+    max-width: 100vw;
+    width: 100%;
+}
+
+#cropper-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    background-color: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(10px);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+#cropper-overlay.hidden {
+    display: none !important;
+}
+
+#crop-overlay {
+    box-sizing: content-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#image-container {
+    position: relative;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+    width: 50%;
+    /* max-width: 900px; */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    background: #23003a;
+}
+
+#image-display {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+#crop-overlay {
+    position: absolute;
+    border: 2px dashed #fff;
+    cursor: move;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    background: transparent;
+    resize: none;
+    overflow: hidden;
+}
+
+.move-handle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    cursor: move;
+    opacity: 0;
+}
+
+.resize-handle {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: #ffffff8a;
+    border: 1px solid #ffffff;
+    cursor: se-resize;
+    z-index: 10;
+    border-radius: 40%;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+.resize-handle.top-right {
+    top: -6px;
+    right: -6px;
+    cursor: ne-resize;
+}
+
+.resize-handle.bottom-left {
+    bottom: -6px;
+    left: -6px;
+    cursor: ne-resize;
+}
+
+.resize-handle.bottom-right {
+    bottom: -6px;
+    right: -6px;
+    cursor: se-resize;
+}
+
+#preview-container {
+    position: relative;
+    margin-top: 20px;
+    text-align: center;
+    width: 100%;
+    margin: 0 auto;
+}
+
+#preview-canvas {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background: #23003a;
+}
+
+.instructions {
+    background: #e3f2fd;
+    padding: 15px;
+    border-radius: 6px;
+    margin: 15px 0;
+    font-size: 14px;
+    color: #2c3e50;
+    border-left: 4px solid #3498db;
+}
+
+
+#validate-btn,
+#crop-btn,
+#reset-btn,
+#cancel-btn {
+    margin: 0 10px;
+}
+
+
+
+
+@media (max-width: 740px) {
+    #image-container {
+        width: 80%;
+    }
+
+    /* .resize-handle {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+    } */
+
+    #preview-canvas {
+        max-width: 550px;
+    }
+}
+
+@media (max-width: 480px) {
+    #image-container {
+        width: 100%;
+    }
+
+    .centered {
+        padding: 10px;
+    }
+
+    #preview-container {
+        margin-top: 10px;
+    }
+
+    #preview-container button {
+        margin: 0;
+        margin-top: 10px;
+    }
+
+    /* #preview-canvas {
+        max-width: 300px;
+    } */
+
+    #image-container {
+        margin: 10px auto;
+    }
+}
+
+/* .hidden {
+    display: none;
+} */
+
+
+/* Touch screen */
+@media (hover: none) and (pointer: coarse) {
+    .resize-handle {
+        width: 36px;
+        height: 36px;
+        border-radius: 30%;
+        border: 2px solid #ffffff;
+    }
+
+    #crop-overlay {
+        border: 4px dashed #fff;
+    }
+
+    #crop-overlay {
+        touch-action: none;
+        pointer-events: auto;
+    }
+
+    .move-handle,
+    .resize-handle {
+        touch-action: none;
+        pointer-events: auto;
+    }
+
+    #image-container {
+        min-height: 250px;
+    }
+}

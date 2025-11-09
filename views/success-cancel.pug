@@ -1,0 +1,43 @@
+//- views/error.pug
+doctype html
+html 
+	head 
+		include include/header.pug
+
+		if(success)
+			title Success
+		else if(cancel)
+			title Cancel
+		else
+			title Error
+		
+		link(rel='stylesheet' href='/css/success-cancel.css')
+
+	if(success && project)
+		body.success
+			div.notification-container
+				h1 #{project.data.title}
+				div.checkmark
+				h2 Payment Successful!
+				h2 Thank you for your #{success.amountUsd}$ donation
+				p Your transaction has been completed successfully
+				a(href=`/project/${project.id}`).btn Back to projects
+
+
+	else if(cancel)
+		body.fail
+			div.notification-container
+				div.errormark
+				h1.errorTitle Payment Cancelled
+				p Amount: #{cancel.amountUsd}$
+				h2 Maybe another time!
+				a(href="/projects").btn Back to projects
+
+	else
+		body.fail
+			div.notification-container
+				div.errormark
+				h1.errorTitle Unknown error
+				a(href="javascript:window.history.back()").btn Back to previous page	
+				br
+				a(href="/projects").btn Back to projects

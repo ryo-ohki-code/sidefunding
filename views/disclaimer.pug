@@ -1,0 +1,98 @@
+// views/index.pug
+doctype html
+html
+	head
+		include include/header.pug
+		include include/header-css.pug
+
+		title Legal information
+
+		link(rel='stylesheet', href='/css/style.css')
+		link(rel='stylesheet', href='/css/index.css')
+		style.
+			.description-area p {text-align: justify;}
+			.description-area h3 {margin-bottom: 3px;}
+	body
+		.menu-container
+			nav
+				ul
+					li: a(href="/" class="") Home
+					li: a(href="javascript:window.history.back()") Back to last page	
+
+
+		.container.fade-in
+			.section-divider_2
+			h1 Legal information
+			img(src="/img/simple02.png" width="50%" alt="SimpleFunding")
+			.section-divider_2
+
+			.description-area
+				h2 Disclaimer of Liability
+
+				h3 Beware of scammer, do you research and verify information before funding a project.
+				
+				p We are not responsible for the accuracy of fundraising requests, the use of donated funds by fundraisers, or the fulfillment of any promises made by fundraisers.
+				p We cannot guarantee fundraisers will use the money as described. Verify the legitimacy of the fundraiser and the intended use of funds.
+
+				h3 Donations are Non-Refundable
+				p Due to the nature of cryptocurrency, once a donation is done it cannot be reversed. We do not hold fund, they are directly transmited to the fundraiser wallet.
+
+				h3 Fundraiser Responsibility
+				p Fundraisers are solely responsible for all aspects of their campaigns, including legal compliance (see section Policy below).
+
+				h3 Fund processing 
+				p We do not process or store your funding, everything go thru the SideShift API. If anything fail during a deposit, donor will need to check this with SideShift support, of course we will ease this process a much as we can.
+
+
+			.section-divider
+			.description-area
+
+				h2 Transparency 
+				br
+				p Every funding is done using blockchain, this ensure full transparency of the process.
+
+			.section-divider
+			.description-area
+				h2 Funds processing 
+				p All funds are processed by the SideShift API, it will generate deposit address for the donor using the coin/token of his choise and send required coin to the fundraiser.
+				p We only need to store your select coin-network and wallet address, with project description data ...
+
+			.section-divider
+			.description-area
+
+				h2 Policy
+
+				p Illegal, harmful, or misleading content are stricly forbiden. You can report anything suspect using this form.
+				p Any detected or reported violation will result in the immediate suspension of the fundraiser campaign and ban of associated wallet address.
+
+				p You are fully responsible of you fundraising and it complience to your local laws.
+				p Fundraisers may have tax obligations related to the funds they receive.
+
+				h3 Political donation are forbiden.
+				p political donations are subject to specific laws and that we don't want to deal with that.
+
+
+			.section-divider
+			.description-area
+
+				h2 Privacy Policy
+
+				p We do not collect data or use coockie. We do not ask donor names or information, fundraiser are free to provide the data they want to into their fundraising campaign.
+
+				p Everything is stored on our server and no third party involved, no data are shared except with SideShift API to process the funds.
+				p All your data are secured thru the cryptographic signature using metamask.
+
+
+			.section-divider
+			.description-area
+				h2 Dispute Resolution
+
+				p In case or dispute with a fundraiser, nationnal law of the fundraiser country will be used. SimpleFunding cannot be reponsible for Fundraiser missuse of the platform.
+
+			.section-divider
+			.description-area
+				h2 Website Cookies
+				p It's simple, we do not use cookies on the website.
+				br
+				h3 We eat them in real life, but hate them online.
+		include include/footer.pug

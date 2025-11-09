@@ -1,61 +1,440 @@
-// views/create.pug
+//- views/create.pug
 doctype html
 html
-  head
-    title Create Crowdfunding Project
-    meta(charset='UTF-8')
-    meta(name='viewport', content='width=device-width, initial-scale=1.0')
-    link(rel='stylesheet', href='/style.css')
-    link(rel='stylesheet', href='/input.css')
-  body
-    .menu-container
-      nav
-        ul
-          li: a(href="/") Home
-    br
-    h1 Create New Project
-    br
-    if error
-      p.error #{error}
-    
-    form(action='/create', method='post')
-      h2 Crowdfunding detail
-      label Creator:
-      input(type='text', name='owner', required)
-      br
-      br
-      label Title:
-      input(type='text', name='title', required)
-      br
-      br
-      label Description:
-      textarea(name='description', required)
-      br
-      br
-      label Goal ($):
-      input(type='number', name='goal', required)
-      br
-      br
-      label Deadline:
-      input(type='date', name='deadline', required)
-      br
-      br
-      br
-      h2 Payment option
-      if(coinsDepositList)
-        include include/coins-select.pug
+	head
+		include include/header.pug
+		include include/header-css.pug
 
-      
-        br
-        br
-        label Wallet address:
-        input(type='text', name='address', required)
-        br
-        br
-        label Wallet Memo (optinal):
-        input(type='text', name='memo')
-        br
-        br
-        button(type='submit').cool-button Create Project
+		title Create Crowdfunding Project
+
+		link(rel='stylesheet', href='/css/input.css')
+		link(rel='stylesheet', href='/css/style.css')
+		link(rel='stylesheet', href='/css/modal-style.css')
+
+		style.
+			.form-inline {  margin-bottom: 25px; }
+			.form-inline label { display: inline-block; width:45%; margin-left: auto; margin-right: auto; }
+			.form-inline input { margin-left: auto; margin-right: auto; }
+
+		link(rel='stylesheet', href='/js/ImageCropper/imageCropper.css')
+		link(rel='stylesheet', href='/js/EasyMDE/easymde.min.css')
+
+	body
+		.menu-container
+			nav
+				ul
+					li: a(href="/") Home
+					li: a(href="/projects") Projects 
+
+		div.container
+			br
+			h1 Create Your Funding Campaign
+			br
+			if error
+				p.error #{error}
+
+			form(action='/create', method='post', enctype='multipart/form-data', onsubmit='return validateForm()')#creationForm.fade-in-form
+				h2 Campaign detail
+				
+				label Name
+				input(type='text', name='owner', placeholder="My name", required)
+				br
+				br
 
 
+				//- Image crropper for avatar
+				label Avatar
+				include include/imageCropper.pug
+				br
+				br
+				
+
+				label Title
+				input(type='text', name='title', placeholder="Project title", required)
+				br
+				br
+
+				div.simpleMDE-container
+					label Description:
+					textarea(name='description', placeholder="Project description...")#description
+					//- Can drag and drop text file or md file on it
+				br
+
+
+				.form-inline
+					label Country
+						br
+						input(type='text', name='country', placeholder="My country")
+
+					label City
+						br
+						input(type='text', name='city', placeholder="My city")
+
+
+
+
+				label Goal ($)
+				input(type='number', name='goal', placeholder="0", required)
+				br
+				br
+
+				label Deadline
+				input(type='date', name='deadline', required)
+				br
+				br
+				br
+
+				h2 Social Media Links
+				label Facebook
+				input(type='text', name='facebookLink' value='')
+				br
+				br
+				label Instagram
+				input(type='text', name='instagramLink' value='')
+				br
+				br
+				label Reddit
+				input(type='text', name='redditLink' value='')
+				br
+				br
+				label Youtube
+				input(type='text', name='youtubeLink' value='')
+				br
+				br
+				label X
+				input(type='text', name='xLink' value='')
+				br
+				br
+				label Official Website
+				input(type='text', name='websiteLink' value='')
+				br
+				br
+
+
+				h2 Add Images
+				input(type='file', name='images', multiple, accept='image/*')#imageInput
+
+
+				//- set funding goal theshold 0-100 100-500 ... with description of each stage
+				br
+
+				br
+				br
+				h2 Funding option
+
+				h3 Display my wallet address publicly
+				div
+					label(for="yes" style="display:inline-block; margin-right:10px;") yes
+						input(type="radio" id="yes" name="displayWallet" value="true")
+
+					label(for="no" style="display:inline-block; margin-left:10px;") no
+						input(type="radio" id="no" name="displayWallet" value="false" checked)
+				br
+				if(coinsDepositList)
+					include include/coins-modal-create.pug
+
+					br
+					br
+					div(style="display:none;")#SIGN
+						h3: b What is the next step: 
+						p: b Sign a message using your MetaMask wallet to authenticate
+						p Use "Sign and set Funding address with MetaMask "
+						p.small Use same wallet for signing and funding (recommended)
+						br
+						p: b Alternative options:
+						p Click "Next Option" to access other options:
+						p If your Metamask and funding wallets are different, use: sign with MetaMask
+						p If you don't have MetaMask, you can self-sign using your own private key
+						br
+						p: b Click on "Create Project"
+						br
+						br
+						button(type='button', onclick='connectMetaMask()').btn Sign and set Funding address with MetaMask 
+						//- div(style="display:inline;")#ADD_WALLET
+
+						//-   button(type='button', onclick='setMetamaskAddress()').btn Use MetaMask Address
+
+
+						p(onclick="toggleVisibility('secretDiv')" style="display:none;").option-btn#SIGN_OPTION Next Option
+						br
+						//- p(onclick="toggleVisibility('secretDiv')")#SIGN_OPTION Or 
+						//-   span(style="color:blue; cursor:pointer;") click here 
+						//-   span to sign with another wallet or with "Self-Signed" custom private key 
+						//- br
+					
+					div#secretDiv.hidden
+						button(type='button', onclick='connectMetaMask("other")').btn Sign with MetaMask 
+						p Or
+						p(onclick="toggleVisibility('SelfSignedSecretDiv')").option-btn Use custom private key
+						br
+						br
+
+					div#SelfSignedSecretDiv.hidden
+						p: b Use your own custom key (letters and numbers only) or generate one
+						p (You can add/remove character to the generated key)
+						p(onclick="setSecureKey()").btn-green generate
+						br
+
+						label Owner Secret Key:
+						input(type='text', name='signature', required)#secretkey
+						input(type="hidden" name="message")#secretMessage
+						input(type="hidden" name="sefSigned" value="true")#sefSigned
+						input(type="hidden" name="sefSignedAddress" value="")#sefSignedAddress
+
+						p(style="color:darkred;") Backup this key - Freedom comes with responsibility - Without backup, you lose access to your campaign.
+						
+						p(onclick="toggleVisibility('reset')").option-btn Go back
+						
+						br
+
+					
+					p(style="color:darkred; margin-bottom:8px;")#ERROR
+
+					button(type='submit' disabled)#submitBtn.cool-button.disabled Create Project
+
+					
+
+		include include/footer.pug
+
+//- Metamask signature script
+include include/signature.pug
+
+//- add error on empty required inputs 
+script(src="/js/inputs.js")
+//- Generate Random
+script(src="/js/randomGen.js")
+//- Form validation
+script(src="/js/validateForm.js")
+//- Image cropper
+script(src="/js/ImageCropper/imageCropper.js")
+//- MDE textarea
+script(src="/js/EasyMDE/easymde.min.js")
+
+script.
+	const urlParams = new URLSearchParams(window.location.search);
+	let creationId;
+
+	if(urlParams.get('creationId')){
+		creationId = String(urlParams.get('creationId'));
+	}else{
+		creationId = String(generateRandom(12))
+	}
+
+
+	// Generate secure message key
+	document.getElementById('secretkey').value = ""; // Reset value
+	const setSecureKey = (length = 64) => {
+		const array = crypto.getRandomValues(new Uint8Array(length));
+		document.getElementById('secretkey').value = generateRandom();
+	}
+
+
+	//- Set easyMDE
+	const toolbarOption = ["bold", "italic", "heading", "|", "quote", "ordered-list", "unordered-list", "|", "preview", "fullscreen", "|", "guide"];
+	const easyMDE = new EasyMDE({ element: document.getElementById("description"), status: ["autosave", "lines", "words", "cursor"],
+		toolbar: toolbarOption,
+		spellChecker: false,
+		height: "400px",
+		autosave: {
+			enabled: true,
+			uniqueId: creationId,
+			delay: 1000,
+		} 
+	});
+
+
+	//- Unlock form submit button
+	const form = document.getElementById('creationForm');
+	const inputs = form.querySelectorAll('input, textarea, select');
+	const submitButton = document.getElementById("submitBtn");
+	submitButton.disabled = true;
+
+	function formVerification(){
+		if(validateForm()){
+			submitButton.classList.remove('disabled');
+			submitButton.disabled = false;
+		} else{
+			if(!submitButton.classList.contains('disabled')) submitButton.classList.add('disabled');
+			if(submitButton.disabled === false) submitButton.disabled = true;
+		}
+	}
+
+	inputs.forEach(input => {
+		input.addEventListener('input', function() {
+			formVerification();
+		});
+	});
+	easyMDE.codemirror.on("change", () => {
+		formVerification();
+	});
+
+
+	// validateForm() - Error notification
+	const errorElememt = document.getElementById("ERROR");
+	function showError(message) {
+		errorElememt.innerText = message.join('\n');
+	}
+	function clearErrors() {
+		errorElememt.textContent = "";
+	}
+
+	
+	//- const minTitleLength = 15;
+	//- const minDescriptionLength = 200;
+	//- function validateForm() {
+	//- 	// Get form values
+	//- 	const name = document.querySelector('input[name="owner"]').value.trim();
+	//- 	const title = document.querySelector('input[name="title"]').value;
+	//- 	//- const description = document.querySelector('textarea[name="description"]').value;
+	//- 	const description = easyMDE.value();
+	//- 	const payWith = document.querySelector('select[name="payWith"]').value;
+	//- 	const wallet = document.querySelector('input[name="address"]').value;
+	//- 	const goal = document.querySelector('input[name="goal"]').value;
+	//- 	const deadline = document.querySelector('input[name="deadline"]').value;
+
+	//- 	const signature = document.querySelector('input[name="signature"]').value.trim();
+	//- 	//- const email = document.getElementById('email').value.trim();
+	
+	//- 	// Clear previous errors
+	//- 	clearErrors();
+
+	//- 	let isValid = true;
+	//- 	let errorMessage = [];
+
+	//- 	// Creator name
+	//- 	if (name === '') {
+	//- 		errorMessage.push('Name is required');
+	//- 		isValid = false;
+	//- 	} else if (name.length < 3) {
+	//- 		errorMessage.push('Name must be at least 3 characters');
+	//- 		isValid = false;
+	//- 	}
+
+	//- 	// Title
+	//- 	if (title === '') {
+	//- 		errorMessage.push('Title is required');
+	//- 		isValid = false;
+	//- 	} else if (title.length < minTitleLength) {
+	//- 		errorMessage.push(`Title must be at least ${minTitleLength} characters`);
+	//- 		isValid = false;
+	//- 	}
+
+	//- 	// Goal
+	//- 	if (goal === '') {
+	//- 		errorMessage.push('You must set a goal');
+	//- 		isValid = false;
+	//- 	} else if (Number(goal) <= 0 || isNaN(Number(goal))) {
+	//- 		errorMessage.push('Invalid goal');
+	//- 		isValid = false;
+	//- 	}
+
+	//- 	// Deadline
+	//- 	if(deadline === ''){
+	//- 		errorMessage.push('You must set a deadline');
+	//- 		isValid = false;
+	//- 	} else {
+	//- 		const deadlineDate = new Date(deadline);
+	//- 		if (isNaN(deadlineDate.getTime())) {
+	//- 			errorMessage.push('Invalid deadline date format');
+	//- 			isValid = false;
+	//- 		} else if (deadlineDate < new Date()) {
+	//- 			errorMessage.push('Deadline cannot be in the past');
+	//- 			isValid = false;
+	//- 		}
+	//- 	}
+
+	//- 	// Validate description
+	//- 	if (description === '') {
+	//- 		errorMessage.push('You must set a description');
+	//- 		isValid = false;
+	//- 	} else if (description.length < minDescriptionLength) {
+	//- 		errorMessage.push(`Description must be at least ${minDescriptionLength} characters`);
+	//- 		isValid = false;
+	//- 	}
+
+	//- 	if(name && title && goal && deadline && description.length >= minDescriptionLength){
+	//- 		// Validate coin selection
+	//- 		if (payWith === '') {
+	//- 			errorMessage.push('Please select a coin');
+	//- 			isValid = false;
+	//- 		}
+	//- 		// Validate wallet address
+	//- 		if (wallet === '') {
+	//- 			errorMessage.push('Please set a funding wallet');
+	//- 			isValid = false;
+	//- 		}
+
+	//- 		// Validate signature
+	//- 		if (signature === '') {
+	//- 			errorMessage.push('Please sign with MetaMask or custom key');
+	//- 			isValid = false;
+	//- 		} else if (signature < 16) {
+	//- 			errorMessage.push('Signature must be at least 16 characters');
+	//- 			isValid = false;
+	//- 		}
+	//- 	}
+		
+	//- 	if (isValid) {
+	//- 		return true;
+	//- 	} else{
+	//- 		showError(errorMessage);
+	//- 		return false;
+	//- 	}
+
+	//- 	// Validate email
+	//- 	//- const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	//- 	//- if (email === '') {
+	//- 	//-     errorMessage.push('Email is required');
+	//- 	//-     isValid = false;
+	//- 	//- } else if (!emailRegex.test(email)) {
+	//- 	//-     errorMessage.push('Please enter a valid email address');
+	//- 	//-     isValid = false;
+	//- 	//- }
+
+	//- 	// Validate phone (optional but if provided must be valid)
+	//- 	//- if (phone !== '') {
+	//- 	//-     const phoneRegex = /^[\+]?[0-9]{10,15}$/;
+	//- 	//-     if (!phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))) {
+	//- 	//-         errorMessage.push('Please enter a valid phone number');
+	//- 	//-         isValid = false;
+	//- 	//-     }
+	//- 	//- }
+	//- }
+
+
+
+	function isElementVisible(element) {
+		if (!element) return false;
+		
+		// Check if element exists in DOM
+		if (!document.contains(element)) return false;
+		
+		// Check display property
+		const computedStyle = window.getComputedStyle(element);
+		if (computedStyle.display === 'none') return false;
+		
+		// Check visibility property
+		if (computedStyle.visibility === 'hidden' || computedStyle.visibility === 'collapse') return false;
+		
+		// Check if element has zero dimensions
+		const rect = element.getBoundingClientRect();
+		if (rect.width === 0 && rect.height === 0) return false;
+		
+		return true;
+	}
+
+
+
+	function toggleVisibility(elementId) {
+		if(elementId === "reset"){
+			document.getElementById("SIGN").style.display = "block";
+			document.getElementById("SelfSignedSecretDiv").classList.add("hidden");
+			return;
+		}
+		const element = document.getElementById(elementId);
+		if (element) {
+			element.classList.toggle('hidden');
+		}
+		if(elementId === "secretDiv") document.getElementById("SIGN").style.display = "none";
+		if(elementId === "SelfSignedSecretDiv") document.getElementById("secretDiv").classList.add("hidden");
+	}

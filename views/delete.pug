@@ -1,0 +1,124 @@
+//- Edition page
+doctype html
+html
+  head
+    meta(name="robots" content="noindex")
+
+    include include/header.pug
+    include include/header-css.pug
+
+    title Delete Project
+
+    link(rel='stylesheet', href='/css/style.css')
+    link(rel='stylesheet', href='/css/input.css')
+    link(rel='stylesheet', href='/js/EasyMDE/easymde.min.css')
+
+  body
+    .menu-container
+      nav
+        ul
+          li: a(href="/") Home
+          li: a(href="javascript:window.history.back()") Back to edit page	
+
+    div.container
+      h1 Delete Funding Campaign
+      br
+      if error
+        p.error #{error}
+      
+        
+      if(project.donations.length == 0 && project.goal.raisedUsd == 0)
+
+        form(action=`/delete/${project.id}`, method='post', onsubmit='return deleteProject()')#deleteForm
+
+          h2 Are you sure you want to delete your campaign?
+
+          button(type='button', onclick='connectMetaMask()')#SIGN.btn Sign with MetaMask
+
+          div#SIGN_MSG
+            p(onclick="toggleVisibility('SIGNATURE')") Or 
+              span(style="color:blue; cursor:pointer;") click here 
+              | to Self-Sign
+          br
+
+          div#SIGNATURE.hidden
+            label Owner Signature:
+            input(type='text', name='signature', required)#secretkey
+            input(type="hidden" name="message")#secretMessage
+            br
+            br
+            
+          br
+
+          button(type="submit" disabled)#submitBtn.cool-button.red.disabled Delete my campaign
+      else 
+        if(project.donations.length > 0)
+          form
+            h2 This campaing can't be deleted
+            h3 You can only disable donation 
+            br
+
+            button(type='button', onclick='connectMetaMask()')#SIGN.btn Sign with MetaMask
+
+            div#SIGN_MSG
+              p(onclick="toggleVisibility('SIGNATURE')") Or 
+                span(style="color:blue; cursor:pointer;") click here 
+                | to Self-Sign
+            br
+
+            div#SIGNATURE.hidden
+              label Owner Signature:
+              input(type='text', name='signature', required)#secretkey
+              input(type="hidden" name="message")#secretMessage
+              br
+              br
+            button(type="" disabled).cool-button.red.disabled Disable donation
+
+          //- TODO set project status to stopped 
+        else
+          h2 This campaing can't be deleted
+
+    include include/footer.pug
+
+
+include include/signature.pug
+script(src="/js/toggleVisibility.js")
+
+//- Delete button
+if(project.donations.length == 0 && project.goal.raisedUsd == 0 && project.status ==  "active")
+  script.
+    function deleteProject(){
+      return confirm('Are you sure you want to delete this project? This action cannot be undone.');
+    }
+
+script.
+  const signature = document.getElementById("secretkey");
+  const submitButton = document.getElementById("submitBtn");
+  submitButton.disabled = true;
+
+  signature.addEventListener('input', function() {
+    formVerification();
+  });
+
+  function validateForm() {
+    // Validate signature
+    if (signature.value === '') {
+      //- errorMessage.push('Please sign with MetaMask or custom key');
+      isValid = false;
+    } else if (signature.value < 16) {
+      //- errorMessage.push('Signature must be at least 16 characters');
+      isValid = false;
+    }else{
+      return true
+    }
+  }
+
+  function formVerification(){
+    if(validateForm()){
+      submitButton.classList.remove('disabled');
+      submitButton.disabled = false;
+    } else{
+      if(!submitButton.classList.contains('disabled')) submitButton.classList.add('disabled');
+      if(submitButton.disabled === false) submitButton.disabled = true;
+    }
+  }

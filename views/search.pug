@@ -1,0 +1,130 @@
+//- Complex Search
+doctype html
+html(lang="en")
+	head
+		include include/header.pug
+		include include/header-css.pug
+
+		title Search
+
+		link(rel='stylesheet', href='/css/style.css')
+		link(rel='stylesheet', href='/css/search.css')
+
+		style.
+			.form-group { margin-bottom: 25px; }
+			.form-inline { display: inline-block; margin: 5px; }
+			label { display: block; margin-bottom: 5px; font-weight: bold; }
+			input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+
+			button.reset:hover { background:rgb(90, 20, 26); }
+
+
+	body
+		//- h1 Search
+		.menu-container
+			nav
+				ul
+					li: a(href="/") Home
+					li: a(href="/projects") projects
+
+		.container.fade-in
+			h1 Advanced Search
+			.search-form
+				
+				form(id="SEARCH_FORM" action="/projects/search" method="GET")
+					.form-group
+						label(for="q") Search Term
+						input(type="text" id="q" name="q" placeholder="Search by title, owner, or description")
+
+					#OWNER.form-group.hidden
+						label(for="owner") Owner
+						input(type="text" id="owner" name="owner" placeholder="Owner name")
+						
+					#TITLE.form-group.hidden
+						label(for="title") Title
+						input(type="text" id="title" name="title" placeholder="Project title")
+
+					#DATE.form-group.hidden
+						label Date
+						.form-inline
+							label(for="creation") Creation
+							input(type="date" id="creation" name="creation")
+				
+						.form-inline
+							label(for="deadline") Deadline
+							input(type="date" id="deadline" name="deadline")
+							
+					#GOAL.form-group.hidden
+						label Goal
+						.form-inline
+							label(for="minGoal") Min
+							input(type="number" id="minGoal" name="minGoal" placeholder="Minimum goal amount")
+						
+						.form-inline
+							label(for="maxGoal") Max
+							input(type="number" id="maxGoal" name="maxGoal" placeholder="Maximum goal amount")
+
+						br
+						br
+						.form-inline
+							label(for="minRaised") Min Raised
+							input(type="number" id="minRaised" name="minRaised" placeholder="Minimum raised amount")
+
+					#COUNTRY.form-group.hidden
+						.form-inline
+							label(for="country") Country
+							input(type="text" id="country" name="country" placeholder="Country")
+
+						.form-inline
+							label(for="city") City
+							input(type="text" id="city" name="city" placeholder="City")
+
+					#STATUS.form-group.hidden
+						label(for="status") Status
+						select(id="status" name="status")
+							option(value="all") All
+							option(value="active") Active
+							option(value="inactive") Inactive
+							br
+
+					button(type="submit").search-btn Search	
+					
+					button(type="button")#RESET.search-btn.reset Reset Filters
+					
+
+					
+					
+				//- Filters
+				.form-inline
+					p Search by
+					label.form-inline
+						input(type="checkbox" id="show-owner" onclick="toggleVisibility('OWNER')").filter-checkbox
+						| Owner
+
+					label.form-inline
+						input(type="checkbox" id="show-title" onclick="toggleVisibility('TITLE')").filter-checkbox
+						| Title	
+
+					label.form-inline
+						input(type="checkbox" id="show-title" onclick="toggleVisibility('DATE')").filter-checkbox
+						| Date	
+
+					label.form-inline
+						input(type="checkbox" id="show-title" onclick="toggleVisibility('GOAL')").filter-checkbox
+						| Goal	
+
+					label.form-inline
+						input(type="checkbox" id="show-title" onclick="toggleVisibility('COUNTRY')").filter-checkbox
+						| Country/City
+
+					label.form-inline
+						input(type="checkbox" id="show-title" onclick="toggleVisibility('STATUS')").filter-checkbox
+						| Status	
+
+
+			include include/search-results.pug
+
+		include include/footer.pug
+
+script(src="/js/toggleVisibility.js")
+script(src="/js/search.js")

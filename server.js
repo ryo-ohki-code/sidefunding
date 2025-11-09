@@ -1,4 +1,4 @@
-// SimpleFunding - Cryptocurrencies crowdfunding platform
+// Cryptocurrencies crowdfunding platform
 
 require('dotenv').config({ quiet: true }); //  debug: true 
 
@@ -50,12 +50,12 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Server URL
-const BASE_URL = process.env.BASE_URL;
+const BASE_URL = process.env.BASE_URL || "https://217-154-23-69.sslip.io";
 
 const verbose = true;
 
 const SIDESHIFT_CONFIG = {
-    path: "./../sideshift-api-node/Compiled/sideshift-api.js", // Path to api module from Shift-Processor/
+    path: "./../../sideshift-api-node/Compiled/sideshift-api.js", // Path to api module from Shift-Processor/
     secret: process.env.SIDESHIFT_SECRET, // "Your_SideShift_secret";
     id: process.env.SIDESHIFT_ID, // "Your_SideShift_ID"; 
     commissionRate: "0.5", // Optional - commision rate setting from 0 to 2
@@ -78,7 +78,7 @@ CURRENCY_SETTING.USD_REFERENCE_COIN = "USDT-bsc"; // Must be a 'coin-network' fr
 CURRENCY_SETTING.SHIF_LIMIT_USD = 20000; // USD
 
 // Load the crypto payment processor
-const ShiftProcessor = require('./Shift-Processor/ShiftProcessor.js');
+const ShiftProcessor = require('./sideshift-payment-wrapper-node/Shift-Processor/ShiftProcessor.js');
 const shiftProcessor = new ShiftProcessor({ sideshiftConfig: SIDESHIFT_CONFIG, currencySetting: CURRENCY_SETTING });
 
 
@@ -124,8 +124,6 @@ async function confirmCryptoPayment(donationId, projectId, shift) {
 
     if (verbose) console.log('Payment confirmed and amounts updated successfully:');
 }
-
-
 
 let availableCoins;
 
@@ -339,9 +337,6 @@ app.use(helmet.frameguard({
 
 
 
-
-// Website Routes
-
 // Home
 app.get('/', async (req, res) => {
     try {
@@ -368,13 +363,28 @@ app.get('/projects/search/api', async (req, res) => {
     try {
         const { q, ...filters } = req.query;
 
+        if (!q || typeof q !== 'string' || !q.trim()) {
+            return null;
+        }
+
         let results = [];
         if (q || Object.keys(filters).length > 0) {
             try {
                 // Sanitize the search term
                 if (q && typeof q === 'string') {
-                    const sanitizedQuery = q.replace(/[<>{}[\]\\|]/g, '');
-                    filters.searchTerm = sanitizedQuery;
+                    const sanitizedQuery = q.trim().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+                    
+                    if (sanitizedQuery.length > 0 && sanitizedQuery.length < 500) {
+                        const wordCount = sanitizedQuery.split(/\s+/).filter(w => w.length > 0);
+
+                        if(wordCount.length < 50){
+                            filters.searchTerm = sanitizedQuery.trim();
+                        } else {
+                            if (verbose) console.log('Too many search terms:', wordCount.length);
+                        }
+                    } else {
+                        if (verbose) console.log('Search query too long or empty:', sanitizedQuery.length);
+                    }
                 }
 
                 results = await mongo.searchProjects(filters);
@@ -504,7 +514,8 @@ app.get('/donate/:id', async (req, res) => {
             return res.status(404).render('error', { error: { title: "Project not found", message: "Project does not exist" } });
         }
 
-        return res.render('donate', { project }); 
+        return res.render('donate', { project }); // for checkout integration
+        // res.render('donate', { project, coinsDepositList: availableCoins }); // for custom integration
     } catch (err) {
         if (verbose) console.error("Error in donate route:", err);
         return res.status(500).render('error', { error: { title: "Error loading project from DB", message: err?.message || 'Unknown error' } });
@@ -515,17 +526,9 @@ app.get('/donate/:id', async (req, res) => {
 
 
 
+// Checkout Integration
 
-
-
-
-
-
-
-
-// Checkout Integration 
-
-const { setupSideShiftWebhook, deleteWebhook } = require('./Shift-Processor/sideshift-webhook.js');
+const { setupSideShiftWebhook, deleteWebhook } = require('./sideshift-payment-wrapper-node/Shift-Processor/sideshift-webhook.js');
 // Call the webhook function at server start
 setupSideShiftWebhook(BASE_URL, process.env.SIDESHIFT_SECRET);
 
@@ -574,6 +577,7 @@ async function retryFail(projectId, donationId, shiftId, failedWebhook, maxRetri
                     if (verbose) console.error(`Failed to process webhook ${failedWebhook.id} after ${retryCount} retries`, err);
                 } else {
                     if (verbose) console.log(`Retry attempt ${retryCount} for webhook ${failedWebhook.id}`, err?.message || 'Unknown error');
+                    // await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
                     await delay(1000 * Math.pow(2, retryCount) + Math.random() * 1000);
                 }
             }
@@ -744,6 +748,7 @@ async function handlingWebhookData(req, notification, project, projectDonation) 
 }
 
 
+
 // SidesShift notification webhook
 app.post('/api/webhooks/sideshift', highTrafficLimiter, async (req, res) => {
     console.log('Headers:', req.headers);
@@ -861,7 +866,7 @@ app.get("/donation-checkout/:status/:projectId/:paymentId", highTrafficLimiter, 
             }
 
         } else if (status === "cancel" || status === "expired") {
-
+            // Remove if webhook start notify cancel
             await resetCryptoPayment(donation.id, projectId, "cancelled");
 
             return res.render('success-cancel', { cancel: donation });
@@ -937,6 +942,10 @@ app.post("/donate-checkout/:id", donationLimiter, async function (req, res) {
 
 
 
+
+
+
+
 // Verify signature
 const verifySignature = require('./modules/verifySignature.js');
 
@@ -1003,8 +1012,8 @@ app.get('/create', (req, res) => {
 const imageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
 app.post('/create', upload.fields([
-    { name: 'avatar', maxCount: 1 },    // Single avatar file
-    { name: 'images', maxCount: PROJECT_MAX_IMAGE }    // Multiple images (up to PROJECT_MAX_IMAGE)
+    { name: 'avatar', maxCount: 1 },
+    { name: 'images', maxCount: PROJECT_MAX_IMAGE }
 ]), donationLimiter, async (req, res) => {
     try {
         const { owner, title, description, goal, deadline, displayWallet, payWith, address, signature, message } = req.body;
@@ -1066,7 +1075,7 @@ app.post('/create', upload.fields([
             if (req.body.country) country = String(req.body.country)
             if (req.body.city) city = String(req.body.city)
 
-            const isAvatar = req.files.avatar;
+            const isAvatar = req.files.avatar; //  ? `/uploads/${req.files.avatar[0].filename}` : null;
             let avatar;
 
             if (isAvatar && isAvatar !== "/img/avatar.jpg") {
@@ -1193,6 +1202,7 @@ async function editUpdate(project, { title, description, country, city, goal, de
         const project_Id = project._id
         const updateData = {};
 
+        // Only add fields that actually changed
         if (currentProject.projectData?.title !== title) {
             updateData['projectData.title'] = title;
         }
@@ -1218,6 +1228,7 @@ async function editUpdate(project, { title, description, country, city, goal, de
             updateData['wallet.displayWallet'] = displayWallet && displayWallet.toLowerCase() === 'true';
         }
 
+        // Only update if there are changes
         if (Object.keys(updateData).length > 0) {
             await mongoManager.updateProjectById(project_Id, updateData);
         }

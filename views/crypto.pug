@@ -1,7 +1,13 @@
-// views/crypto.pug
+//- views/crypto.pug
+//- Modified version from the shop-integration project
 doctype html
 html 
 	head 
+		include include/header.pug
+		meta(name="robots" content="noindex")
+	
+		include include/header-css.pug
+		
 		if(ratio)
 			title Preview payment
 		else if(shift)
@@ -9,16 +15,29 @@ html
 		else
 			title Error
 
-		meta( name="robots" content="noindex")
-		meta(name="viewport" content="width=device-width, initial-scale=1.0")
-		link(rel='stylesheet' href='/main.css')
-		link(rel='stylesheet' href='/style.css')
-		link(rel='stylesheet' href='/table.css')
+
+		link(rel='stylesheet' href='/css/payment-processor.css')
+		link(rel='stylesheet' href='/css/style.css')
+		link(rel='stylesheet' href='/css/table.css')
+		
+		//- QR style
+		//- style.
+		//- 	.qr-container {
+		//- 		margin: 20px auto;
+		//- 		display: inline-block;
+		//- 		padding: 10px;
+		//- 		border: 1px solid #ddd;
+		//- 		border-radius: 5px;
+		//- 		background: white;
+		//- 	}
+		//- 	canvas {
+		//- 		margin: 10px 0;
+		//- 	}
 
 	body 
 		div 
 			if(ratio)
-				h1 Crowdfunding #{projectName}
+				h1 Donate to #{projectName}
 				
 				//- For demo virtual invoice
 				if(!invoice)
@@ -31,7 +50,7 @@ html
 						p=ratio.error.message
 				else
 					-SHOP_SETTING = CURRENCY_SETTING
-					-totalCrypto = Number(invoice.cryptoTotal / Number(ratio.rate)).toFixed(8)
+					-totalCrypto = Number(invoice.settleAmount / Number(ratio.rate)).toFixed(8)
 					-invoiceTotal = Number(invoice.total).toLocaleString(SHOP_SETTING.locale,{style:'currency', currency: SHOP_SETTING.currency})
 					
 
@@ -63,6 +82,7 @@ html
 							input(type="hidden" name="total" value=invoice.total)
 							input(type="hidden" name="id" value=invoice.id)
 							input(type="hidden" name="donor" value=invoice.donor)
+							input(type="hidden" name="refund" value=invoice.refund)
 
 							button(type="submit").cool-button Go to Pay page
 							br
@@ -74,11 +94,10 @@ html
 									br
 
 
+
+
 			//- Shift payment page
 			if(shift)
-				//- if(!invoice)
-				//- 	p Invoice error
-
 				if(shift.error)
 					h3 API error
 					p #{shift.error.message}
@@ -90,10 +109,6 @@ html
 							th Payment ID
 							td
 								p #{shift.id}
-						//- tr
-						//- 	th Quote ID
-						//- 	td
-						//- 		p=shift.quoteId
 						tr
 							th Deposit coin
 							td
@@ -107,53 +122,46 @@ html
 							th Expiration Date
 							td
 								p#EXPIREAT #{(new Date(shift.expiresAt)).toLocaleString('en-EN')}
-						tr
-							th STATUS
-							td
-								p
-									b #{shift.status}
-
-					br
-
-					
-					if(shift.status != "expired")
-						-averageShiftMinutes = Math.floor(shift.averageShiftSeconds / 60);
-
-						img(src="/icons/"+shift.depositCoin+"-"+shift.depositNetwork+".svg" width="100px" height="100px")
-						h2 #{shift.depositCoin} (#{shift.depositNetwork})
-						
 
 
 					div#MESSAGE
 						if(shift.status == "waiting")
-							h2 Waiting for payment.
+							h2 Waiting for payment
+
 						else if(shift.status == "pending")
-							h2 Payment detected, waiting confirmation.
+							h2 Payment detected, waiting confirmation
+
 						else if(shift.status == "processing")
-							h2 Deposit confirmed.
+							h2 Deposit confirmed
+
 						else if(shift.status == "settling")
-							h2 Payment near 100% completed.
+							h2 Payment near 100% completed
 						
 						else if(shift.status == "settled")
 							h2.validated Payment completed !
-							//- REDIRECT TO SUCCESS PAGE
-							//- script.
-							//- 	const shiftData = !{JSON.stringify(shift)};
-							//- 	window.location.href = "/register-validation/"+shiftData.id;
+							//- REDIRECT TO SUCCESS PAGE, done from server side
 						
 						else if(shift.status == "expired")
 							h2.expired Payment address expired !
 							//- REDIRECT TO CANCEL PAGE
-							script.
-								//- const shiftData = !{JSON.stringify(shift)};
-								//- window.location.href = "/";
-							//- script.
-							//- 	const shiftData = !{JSON.stringify(shift)};
-							//- 	window.location.href = "/cancel/"+shiftData.id+"/#{invoice.id}";
 							
 						else
 							h2 Invalid status
-							
+
+
+					if(shift.status != "expired")
+						img(src="/icons/"+shift.depositCoin+"-"+shift.depositNetwork+".svg" width="100px" height="100px" class="flip-animation")
+						h2 #{shift.depositCoin} (#{shift.depositNetwork})
+						
+
+					if(shift.status != "expired")
+						-averageShiftMinutes = Math.floor(shift.averageShiftSeconds / 60);
+						if(averageShiftMinutes > 0)
+							p Average shift processing delay: #{averageShiftMinutes} minute(s) once pending
+						else 
+							p Average shift processing delay: less than 1 minute once pending
+
+
 						if(shift.status != "expired")
 							table
 								tr
@@ -167,31 +175,69 @@ html
 										th To
 									else
 										th Destination Wallet
-									td #{shift.depositAddress}
+									if(!depositLink)
+										td #{shift.depositAddress}
+									else
+										td(style="border-bottom: 0px solid black; ") 
+											a(href=depositLink target="_blank") #{shift.depositAddress}
+								tr 
+									//- QR code
+									td(colspan="2")
+										div(style="text-align:center;padding:0; margin:0;")
+											.qr-container
+												canvas#qrcode
+
+								//- Memo
 								if(shift.depositMemo)
 									tr
 										th Wallet Memo
 										td #{shift.depositMemo}
+			
 
+
+					a(href="/cancel-shift/"+shift.id)
+						button.btn Cancel Payment
 
 					br
 					br
-
 
 
 if(shift)
+	script(src="/js/qrious.min.js")
+	//- script(src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js")
+
 	script.
+		// Initialize QR code
 		const shiftData = !{JSON.stringify(shift)};
+
+		const url = shiftData.depositAddress;
+		if(url){
+			function generateQR(url) {
+				const qr = new QRious({
+					element: document.getElementById('qrcode'),
+					value: url,
+					size: 200,
+					level: 'H',
+					background: 'white',
+					foreground: 'black'
+				});
+			}
+			generateQR(url)			
+		}
+	
 		let now = Date.now();
 		let expireAt = new Date(shiftData.expiresAt).valueOf();
-		let Timer = ( ( (Number(expireAt) - Number(now)) /1000 ) /60 ).toFixed(0);
+		let timer = ( ( (Number(expireAt) - Number(now)) /1000 ) /60 ).toFixed(0);
+		timer = Math.round(timer);
 
-		document.getElementById("EXPIREAT").innerText = Timer +" min";
-		if(Timer < 0){
-			document.getElementById("EXPIREAT").innerText = "Expired";
-		} else{
-			document.getElementById("EXPIREAT").innerText = Timer +" min";
-		}
+		document.getElementById("EXPIREAT").innerText = timer < 0 ? "Expired" : timer + " min";
+		//- document.getElementById("EXPIREAT").innerText = Timer +" min";
+		//- if(Timer < 0){
+		//- 	document.getElementById("EXPIREAT").innerText = "Expired";
+		//- } else{
+		//- 	if(Timer === "-0") document.getElementById("EXPIREAT").innerText = "0 min";
+		//- 	document.getElementById("EXPIREAT").innerText = Timer +" min";
+		//- }
 
 		function autoRefresh() {
 			const status = shiftData.status;

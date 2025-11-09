@@ -1,0 +1,24 @@
+//- Image Cropper
+
+input(type="file" name='avatar' id="avatar-input" accept="image/*")
+
+div(style="all:unset;")
+	#cropper-overlay.fade-in.hidden
+		.centered
+			div#image-container.fade-in
+				img#image-display
+				div#crop-overlay
+					div.move-handle
+					div.resize-handle.bottom-right
+					div.resize-handle.top-right
+					div.resize-handle.bottom-left
+
+
+			div#preview-container
+				canvas#preview-canvas.hidden.fade-in
+
+				div(style=display="inline-block;margin-top: 20px;")
+					button(type="button")#validate-btn.btn-green.hidden Validate
+					button(type="button")#crop-btn.btn-blue Select
+					button(type="button")#reset-btn.btn.red.hidden Reset
+					button(type="button")#cancel-btn.btn Cancel

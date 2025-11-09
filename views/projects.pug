@@ -1,0 +1,152 @@
+// views/index.pug
+doctype html
+html
+	head
+		include include/header.pug
+		include include/header-css.pug
+		
+		title Crowdfunding Platform
+
+		link(rel='stylesheet', href='/css/pagination.css')
+		link(rel='stylesheet', href='/css/style.css')
+		link(rel='stylesheet', href='/css/search.css')
+
+
+		//- for search bar not display no result div
+		style.
+			.no-results { display: none; }
+
+	body
+		div.menu-container
+			nav
+				ul
+					li: a(href="/") Home
+					li(onclick="toggleVisibility('SEARCH_DIV')"): a#SEARCH_BUTTON Search
+
+
+		if(projects || inactiveProjects)
+			div#SEARCH_DIV.container.hidden
+				include include/search-bar.pug
+				include include/search-results.pug
+
+		if(!projects && !inactiveProjects)
+			div.container
+				br
+				br
+				h1 No project
+				//- h2 Create the first one!
+		else
+			div.container
+				if(projects)
+					if(projects.length == 0 && !inactiveProjects )
+						br
+						br
+						h1 No project
+						//- h2 Create the first one!
+				else if(inactiveProjects)
+					if(!projects && inactiveProjects.length == 0)
+						br
+						br
+						h1 No project
+
+	
+    
+		div.container
+			div#PROJECTS
+				if(projects)
+					if(projects.length > 0)
+						h1 Active Crowdfunding Projects
+						h2 Choose a project to support!
+						br
+
+						div.projects
+							each project in projects.reverse()
+								div.project-card
+									h3 #{project.projectData.title}
+
+									p Deadline: #{project.projectData.deadline.toLocaleDateString()}
+									
+									p(style="text-align:justify;") 
+										| #{project.projectData.description.substring(0, 300)}
+										if project.projectData.description.length > 300
+											| ...
+
+									p: b Goal: $#{project.goal.goalUsd} | Raised: 
+										if(Number(project.goal.raisedUsd) === 0)
+											span(style="color:darkred;") $#{project.goal.raisedUsd}
+										else
+											span(style="color:darkgreen;") $#{project.goal.raisedUsd.toFixed(2)}
+									
+									p: b Goal: #{project.wallet.coin} (#{project.wallet.network}) #{project.goal.goalCryptocurrency} | Raised: 
+										if(Number(project.goal.raisedCryptocurrency) === 0)
+											span(style="color:darkred;") #{project.wallet.coin} #{project.goal.raisedCryptocurrency}
+										else
+											span(style="color:darkgreen;") #{project.wallet.coin} #{project.goal.raisedCryptocurrency}
+									
+									a(href=`/project/${project.id}`).cool-button View Details
+
+
+				if(inactiveProjects)
+					if(inactiveProjects.length > 0)
+						br
+						h2 Closed Crowdfunding Projects
+						br
+						div.projects
+							each project in inactiveProjects.reverse()
+								div.project-card
+									h2 #{project.projectData.title}
+									p Expired: #{project.projectData.deadline.toLocaleDateString()}
+									//- p #{project.projectData.description}
+									//- p Goal: $#{project.goal.goalUsd} | Raised: $#{project.raised}
+									//- p Deadline: #{project.deadline.toLocaleDateString()}
+									a(href=`/project/${project.id}`).cool-button View Details
+
+
+		//- Pagination
+		if(totalPages > 1)
+			nav.pagination
+				//- a.page-link(href=`/projects?page=1` class=hasPrevPage ? '' : 'disabled')
+				if(totalPages > 2)
+					a.page-link(href=`/projects?page=1&limit=${limit}` class=hasPrevPage ? '' : 'disabled')
+						| First
+				
+				//- a.page-link(href=`/projects?page=${currentPage - 1}` class=hasPrevPage ? '' : 'disabled')
+				a.page-link(href=`/projects?page=${currentPage - 1}&limit=${limit}` class=hasPrevPage ? '' : 'disabled')
+					| Previous
+
+				span.page-info
+					| Page #{currentPage} of #{totalPages}
+
+				//- a.page-link(href=`/projects?page=${currentPage + 1}` class=hasNextPage ? '' : 'disabled')
+				a.page-link(href=`/projects?page=${currentPage + 1}&limit=${limit}` class=hasNextPage ? '' : 'disabled')
+					| Next
+
+				if(totalPages > 2)
+					//- a.page-link(href=`/projects?page=${totalPages}` class=hasNextPage ? '' : 'disabled')
+					a.page-link(href=`/projects?page=${totalPages}&limit=${limit}` class=hasNextPage ? '' : 'disabled')
+						| Last
+
+
+		include include/footer.pug
+
+
+
+script(src="/js/search.js")
+
+script.
+	function toggleVisibility() {
+		const searchDiv = document.getElementById("SEARCH_DIV");
+		const searchButton = document.getElementById("SEARCH_BUTTON");
+		const projectDiv = document.getElementById("PROJECTS");
+
+		if (searchDiv.classList.contains('hidden')) {
+			searchDiv.classList.remove('hidden');
+			projectDiv.classList.add('hidden');
+			searchButton.innerText = "PROJECTS";
+		} else {
+			searchDiv.classList.add('hidden');
+			projectDiv.classList.remove('hidden');
+			searchButton.innerText = "SEARCH";
+		}
+	}
+

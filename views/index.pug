@@ -2,42 +2,384 @@
 doctype html
 html
   head
+    include include/header.pug
+    include include/header-css.pug
+
     title Crowdfunding Platform
-    meta(charset='UTF-8')
-    meta(name='viewport', content='width=device-width, initial-scale=1.0')
-    link(rel='stylesheet', href='/style.css')
-  body
-    .menu-container
-      nav
-        ul
-          li: a(href="#" class="active") Home
-          li: a(href='/create') Add New Project
 
+    link(rel='stylesheet', href='/css/style.css')
+    link(rel='stylesheet', href='/css/index.css')
+    
+
+body
+  .menu-container
+    nav
+      ul
+        li: a(href="#" class="active") Home
+        li: a(href='/projects') Fund a Project
+        li: a(href='/create')#creationLink Create your funding
+
+  
+
+  .container.fade-in
+    h1 Welome to 
+    img(src="/img/simple02.png" width="50%" alt="SimpleFunding")
+
+    h2 The Future of Fundraising is Here
    
-    br
-    h1 Welome to SideFunding 
-    br
-    h2 Active Crowdfunding Projects
-    br
-    .projects
-      each project in projects.reverse()
-        .project-card
-          h3 #{project.title}
-          p Deadline: #{project.deadline.toLocaleDateString()}
-          p #{project.description}
-          p: b Goal: $#{project.goal} | Raised: 
-            span(style="color:darkgreen;") $#{project.raised}
-          a(href=`/project/${project.id}`).cool-button View Details
+    p A new era of crowdfunding begins! Help real-world businesses grow using cryptocurrencies
 
-    br
-    h2 Closed Crowdfunding Projects
-    br
-    .projects
-      each project in inactiveProjects.reverse()
-        .project-card
-          h2 #{project.title}
-          p Expired: #{project.deadline.toLocaleDateString()}
-          //- p #{project.description}
-          //- p Goal: $#{project.goal} | Raised: $#{project.raised}
-          //- p Deadline: #{project.deadline.toLocaleDateString()}
-          a(href=`/project/${project.id}`).cool-button View Details
+    .section-divider_2
+    h2 Build to be simple
+    .index-grid
+
+      .index-card
+        h2 Free to use
+        //- p No platform Fees
+        p Campaign owners receive 100% of funds raised
+        p No commissions or fees deducted
+        //- p No Fees - Campaign owners pay nothing
+        a.cool-button(href="#HOW") Learn more
+
+      .index-card
+        h2 No Accounts Required
+        p Launch your funding campaign immediately
+        p or
+        p Start Supporting projects right away
+        a.cool-button(href="#START") Learn more
+
+      //- .index-card
+      //-   h2 Create Project
+      //-   //- p Support causes you believe in using your preferred cryptocurrency. Choose your coin set the amount, add personal messages to show your support
+      //-   a.cool-button(href="/projects")  Create
+
+
+    .section-divider_2#START
+
+    h2 Start Your Journey Today
+    h3 Your campaign, your rules. No fees. No limits. Just pure crowdfunding.
+    .section-divider
+
+    .featured-content
+      h2 What is SimpleFunding?
+      p It's a direct Peer to peer funding system, from donor to project owner without intermediary.
+      .section-divider_2
+      h3 SimpleFunding is the simplest way to raise funds for your project using cryptocurrency.
+      h3 No accounts, no fees, no hassle.
+      br
+      ul 
+        li Create a campaign in just a few clicks
+        li Accept donations in #{icons.length} cryptocurrencies
+        li Zero commission fees for campaign owners
+        li Transparent, trustless transactions
+      .section-divider_2
+
+    .section-divider
+
+    .description-area
+      h2 Why Choose SimpleFunding?
+      img(src="/img/logo.png" width="180px" alt="Sample Image")
+
+      h3 Whether you're launching a business, funding a creative project or supporting someone's dream
+        br
+        | SimpleFunding makes it simple and secure.
+      br
+      //- p No Fees - Campaign owners pay nothing
+      //- p No Accounts - Start fundraising immediately
+      p(style="margin-bottom:0;") No Limits - Any amount accepted*
+      p.text-small(style="margin-top:0;") * No limit for the campaign goal, 20k$ payment limit per transaction
+      p Global Access - Reach supporters worldwide
+      p Trustless System - Direct cryptocurrency transactions
+      h3 Ready to start?
+
+
+    .section-divider_2
+    h2 How it works?
+    .index-grid
+      .index-card
+        h2 Create a Campaign in Seconds
+        p Describe your project. Add pictures and details. Set your funding goal and deadline. Enter your wallet address. Launch your campaign!
+        a.cool-button(href="/create") Get Started
+        
+      .index-card
+        h2 Fund Projects with Ease
+        p Support causes you believe in using your preferred cryptocurrency. Choose your coin set the amount, add personal messages to show your support
+        a.cool-button(href="/projects")  Learn More
+
+      .index-card
+        h2 #{icons.length} Cryptocurrencies Supported
+        p From Bitcoin and Ethereum to trending altcoins, we support all major cryptocurrencies and tokens.
+        a.cool-button(href="#CRYPTOSUPPORT")  Learn More
+
+
+
+    .section-divider_2
+    //- h2 Two Funding Modes
+    //-  - Choose What Works Best
+
+    h2 Fund or get funded
+
+    .index-grid
+      .index-card
+        h2 Keep Everything You Receive
+        .index-list
+          ul 
+            li 
+              b Perfect for: 
+              | Projects that need immediate support
+            li 
+              b Benefit: 
+              | No risk of losing funds if goal isn't met, each donation goes directly into your wallet.
+            li 
+              b Ideal for: 
+              | Ongoing projects, startups, personal goals, artistic projects
+
+        a.cool-button(href="#KEEP") Learn More
+        
+      .index-card
+        h2 Fund project using #{icons.length} supported coin
+        .index-list
+          ul 
+            li 
+              b Use your favorite coin: 
+              | And fund your favorite project
+            li 
+              b Campaign owner will receive the coin of his choise
+            li 
+              b  No blabla just simplicity
+        a.cool-button(href="#GOALONLY") Coming Soon
+
+    .media-grid
+      .media-item
+        img(src="/img/funding.png" alt="Sample Image") 
+
+
+      //- .index-card
+      //-   h2 Only Get Paid If Your Goal is Reached
+      //-   .index-list
+      //-     ul 
+      //-       li 
+      //-         b Perfect for: 
+      //-         | Projects with specific funding requirements
+      //-       li 
+      //-         b Benefit: 
+      //-         | Contributors know their money will only go to successful campaigns
+      //-       li 
+      //-         b Ideal for: 
+      //-         | Large projects, community initiatives, business ventures
+      //-   a.cool-button(href="#GOALONLY") Coming Soon
+
+
+    .section-divider
+
+
+
+    .description-area#KEEP
+      h2 Keep everything you receive
+      
+      p Every contribution matters, regardless of whether you reach your funding goal.
+        br
+        i Backers can support your initiative by donating through any of our supported digital currencies
+
+      p Enumerate the benefits you'll receive at every stage of your fundraising campaign, for example: starting with basic support at $0-$1000, followed by credibility building at $1000-$2000, and continuing through higher funding milestones.
+      p Additionally, include compelling visual elements such as project progress photos, detailed project documentation, and testimonials from early supporters to create trust and encourage contributions.
+      p Once your funding campaign is ready, you'll need to promote it through social media, email networks, and community channels to reach potential supporters. The key is building awareness early. Starting with your personal network, then expanding to broader audiences as your project gains momentum and credibility through the initial funding rounds.
+
+    .media-grid
+      .media-item
+        img(src="/img/backgound.jpg" alt="Sample Image") 
+
+
+    //- .description-area#GOALONLY
+    //-   h2 Only get payed if your goal is achieved
+      
+    //-   p This can give more confidence to contributor, knowing if you goal is not raised then the project will not go live.
+    
+    .section-divider_2
+
+
+    .description-area#CRYPTOSUPPORT
+      h2 Cryptocurrency support
+      
+      p We support all major cryptocurrencies and tokens: BTC, ETH, USDT, BNB, SOL, ADA, DOGE, XRP, POLYGON, AVAX, and hundreds more
+      p 40+ blockchains and #{icons.length} coins and tokens.
+
+    div(style="margin-left:auto;margin-right:auto;text-align:center;")#SUPPORTED.media-grid 
+      div#IMAGEGRID.media-grid-icons
+
+
+    .section-divider_2
+
+    .description-area#HOW
+      h2 It's free for users - How does SimpleFunding earn money?
+      p While we offer a free service to our users, we do earn revenue through strategic partnerships.
+      p We utilize the SideShift API for payment processing, which provides us with a 0.5% commission on the platform's total transaction volume. 
+      p This ensures fundraisers receive 100% of their raised funds for project development.
+      
+    .description-area
+      h2 How it works?
+      p The beauty lies in simplicity and transparency.
+      p SimpleFunding operates as a direct peer-to-peer funding system, enabling donors to transfer funds directly to project owners through cryptocurrency transactions.
+      p The process works seamlessly when donors pay using various cryptocurrencies into the project owner's wallet, with the transaction then routing through a specialized Shift API that automatically converts the donated coins or tokens into the specific cryptocurrency that the project owner requires.
+      p: i For example, if a donor contributes Bitcoin (BTC), the system will convert it to Ethereum (ETH) as specified by the project owner, ensuring the recipient receives exactly what they need and flexibility for donors. 
+      p While the SideShift API serves as the sole intermediary for currency conversion, the actual funding transfer occurs directly between donor and recipient, maintaining the true peer-to-peer nature of the transaction while providing the flexibility of multi-currency support.
+      //- p The beauty of this model lies in its simplicity and transparency
+
+    .section-divider
+    h2 Last Crowdfunding Projects
+    .section-divider
+
+
+    div
+      -index = 0
+      each project in projects.reverse()
+        if(index < 4)
+          -index++
+          div.project-card(style="width:95%;")
+            h3 #{project.projectData.title}
+            p Deadline: #{project.projectData.deadline.toLocaleDateString()}
+
+            p(style="text-align:justify;") 
+              | #{project.projectData.description.substring(0, 300)}
+              if project.projectData.description.length > 300
+                | ...
+
+            p: b Goal: $#{project.goal.goalUsd} | Raised: 
+              if(Number(project.goal.raisedUsd) === 0)
+                span(style="color:darkred;") $#{project.goal.raisedUsd}
+              else
+                span(style="color:darkgreen;") $#{project.goal.raisedUsd.toFixed(2)}
+            p: b Goal: #{project.wallet.coin} (#{project.wallet.network}) #{project.goal.goalCryptocurrency} | Raised: 
+              if(Number(project.goal.raisedCryptocurrency) === 0)
+                span(style="color:darkred;") #{project.wallet.coin} #{project.goal.raisedCryptocurrency}
+              else
+                span(style="color:darkgreen;") #{project.wallet.coin} #{project.goal.raisedCryptocurrency}
+            a(href=`/project/${project.id}`).cool-button View Details
+
+
+    //- .index-list
+    //-   li List Item 1
+    //-   li List Item 2
+    //-   li List Item 3
+      
+     
+    //- form
+    //-   .input-group
+    //-     input(type="text" placeholder="Enter your name")
+    //-     input(type="email" placeholder="Enter your email")
+      
+    //-   select
+    //-     option Select an option
+    //-     option Option 1
+    //-     option Option 2
+
+    //-   textarea(placeholder="Enter your message")
+    //-   input(type="submit" value="Submit" class="cool-button")
+
+
+
+
+  include include/footer.pug
+
+
+script(src="/js/randomGen.js")
+
+
+script.
+  document.getElementById("creationLink").href = "/create?creationId="+ generateRandom(8);
+
+  const svgFiles = !{JSON.stringify(icons)};
+  
+  // adapt icons for different size screen
+  let iconsQty = 15;
+  let resizeTimer;
+
+  function updateIconsQty() {
+    if (window.matchMedia('(max-width: 410px)').matches) {
+      iconsQty = 10;
+    } 
+    else
+    if (window.matchMedia('(max-width: 540px)').matches) {
+      iconsQty = 15;
+    } 
+    else
+    if (window.matchMedia('(max-width: 660px)').matches) {
+      iconsQty = 16;
+    } 
+    else if (window.matchMedia('(max-width: 900px)').matches) {
+      iconsQty = 15;
+    } else if (window.matchMedia('(max-width: 1115px)').matches) {
+      iconsQty = 16;
+    }     
+    else {
+      iconsQty = 15;
+    }
+    displayIcons();
+  }
+
+  function handleResize() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(updateIconsQty, 250);
+  }
+
+  // Initial check
+  updateIconsQty();
+
+  // Add event listener
+  window.addEventListener('resize', handleResize);
+
+
+
+  function getUniqueIcons(array, count) {
+    const iconGroups = {};
+    
+    array.forEach(iconPath => {
+      const filename = iconPath.split('/').pop();
+      const symbol = filename.replace('.svg', '').split('-')[0].toUpperCase();
+      
+      if (!iconGroups[symbol]) {
+        iconGroups[symbol] = [];
+      }
+      iconGroups[symbol].push(iconPath);
+    });
+    
+    // Get one random icon from each group
+    const selectedIcons = [];
+    const symbols = Object.keys(iconGroups);
+    
+    // Shuffle the symbols array
+    const shuffledSymbols = [...symbols].sort(() => 0.5 - Math.random());
+    
+    // Select one icon from each group (up to requested count)
+    for (let i = 0; i < Math.min(count, shuffledSymbols.length); i++) {
+      const symbol = shuffledSymbols[i];
+      const groupIcons = iconGroups[symbol];
+      // Pick random icon from this group
+      const randomIcon = groupIcons[Math.floor(Math.random() * groupIcons.length)];
+      selectedIcons.push(randomIcon);
+    }
+    
+    return selectedIcons;
+  }
+
+  // Get unique random images 
+  function displayIcons(){
+    const uniqueImages = getUniqueIcons(svgFiles, iconsQty);
+
+    // Generate HTML for images
+    const grid = document.getElementById('IMAGEGRID');
+    grid.innerHTML = ''; // Clear previous content
+    
+    uniqueImages.forEach(filename => {
+      const mediaItem = document.createElement('div');
+      mediaItem.className = 'media-item';
+      
+      const img = document.createElement('img');
+      img.src = `${filename}`;
+      img.alt = filename.replace('.svg', '').split('/').pop().replace('.svg', '');
+      
+      mediaItem.appendChild(img);
+      grid.appendChild(mediaItem);
+    });
+  }
+

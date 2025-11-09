@@ -1,0 +1,19 @@
+//- Search result
+
+#RESULTS.results
+    if results && results.length > 0
+       
+        each project in results
+            .project-card
+                .project-title= project.projectData.title
+                    .project-meta
+                        span Owner: #{project.owner.name} | 
+                        span Created: #{new Date(project.projectData.creation).toLocaleDateString()} | 
+                        span Deadline: #{new Date(project.projectData.deadline).toLocaleDateString()}
+                        p= project.projectData.description
+                        if project.goal
+                            p Goal: $#{project.goal.goalUsd.toLocaleString()}
+                        if project.raisedUsd
+                            p Raised: $#{project.goal.raisedUsd.toLocaleString()}
+    else
+        .no-results No projects found matching your criteria

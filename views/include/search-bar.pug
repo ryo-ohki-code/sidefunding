@@ -1,0 +1,17 @@
+//- Search bar
+br
+h1 Search Crowdfunding Projects
+h2 Find a project to support!
+br
+
+div.fade-in
+    form(id="SEARCH_FORM" action="" method="GET")
+        div.search-div
+            input(type="text" id="q" name="q" placeholder="Search by title, owner, or description").search-input
+
+            button(type="submit").search-btn Search Projects
+
+            button(type="button")#RESET.search-btn.reset Reset search
+            
+            a(href="/projects/search"): button(type="button").search-btn Advanced search
+            

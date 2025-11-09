@@ -2,20 +2,23 @@
 doctype html
 html 
 	head 
+		include include/header.pug
+
 		if(error)
 			title #{error.title}
 		else
 			title Error
 		
-		meta( name="robots" content="noindex")
-		meta(name="viewport" content="width=device-width, initial-scale=1.0")
-		link(rel='stylesheet' href='/main.css')
+		link(rel='stylesheet' href='/css/success-cancel.css')
 
-	body 
+	body.fail
+		div.notification-container
+			div.errormark
+			if(error)
+				h1.errorTitle #{error.title}
 
-		if(error)
-			h1 #{error.title}
-			p #{error.message}
-
-		else 
-			p Unknown error
+				p #{error.message}
+				
+				a(href="javascript:window.history.back()").btn Back to previous page	
+			else 
+				p Unknown error
