@@ -73,6 +73,6 @@ const shiftGateway = new cryptoProcessor({
 ### Start server
 
 ```bash
-npm install express pug fs dotenv multer isomorphic-dompurify mongoose express-rate-limit helmet
-node sidefunding.js
+npm install express pug fs dotenv multer isomorphic-dompurify mongoose ethers express-rate-limit helmet
+node server.js
 ```
