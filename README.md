@@ -13,15 +13,15 @@ This platform allows users to create funding requests and accept donations using
 ## Installation 
 
 ### Components
-- [sideshiftAPI.js](https://github.com/ryo-ohki-code/sideshift-api-node/blob/main/sideshiftAPI.js): Interface to communicate with the official Sideshift API.
-- [CryptoPaymentPoller.js](https://github.com/ryo-ohki-code/sideshift-payment-integration-package/blob/main/CryptoPaymentPoller.js): Polls the Sideshift API for payment confirmation and triggers success/failure callbacks.
-- [ShiftProcessor.js](https://github.com/ryo-ohki-code/sideshift-payment-integration-package/blob/main/ShiftProcessor.js): Core logic to create and manage crypto payments through Sideshift.
+- [sideshift-api-node](https://github.com/ryo-ohki-code/sideshift-api-node): Interface to communicate with the official Sideshift API.
+- [ShiftProcessor.js](https://github.com/ryo-ohki-code/sideshift-payment-wrapper-node/blob/main/ShiftProcessor.js): Core logic to create and manage crypto payments through Sideshift.
 
 ### Download required files
 ```bash
-wget https://raw.githubusercontent.com/ryo-ohki-code/sideshift-api-node/main/sideshiftAPI.js
-wget https://raw.githubusercontent.com/ryo-ohki-code/sideshift-payment-integration-package/main/CryptoPaymentPoller.js
-wget https://raw.githubusercontent.com/ryo-ohki-code/sideshift-payment-integration-package/main/ShiftProcessor.js
+git clone https://github.com/ryo-ohki-code/sidefunding
+cd sidefunding
+git clone https://github.com/ryo-ohki-code/sideshift-api-node
+git clone https://github.com/ryo-ohki-code/sideshift-payment-wrapper-node
 ```
 
 
@@ -29,6 +29,7 @@ wget https://raw.githubusercontent.com/ryo-ohki-code/sideshift-payment-integrati
 
 ### Prerequisites
 - Node.js environment
+- Mongo DB
 - SideShift API key (secret and id)
 
 How to get your API credentials?
@@ -69,22 +70,9 @@ const shiftGateway = new cryptoProcessor({
 });
 ```
 
-### Load the payment poller system
-```
-const PaymentPoller = require('./CryptoPaymentPoller.js');
-const cryptoPoller = new PaymentPoller({
-  shiftGateway,
-  intervalTimeout: 120000, // ms
-  resetCryptoPayment,
-  confirmCryptoPayment
-});
-```
-
 ### Start server
 
 ```bash
-npm install express fs pug dotenv
+npm install express pug fs dotenv multer isomorphic-dompurify mongoose express-rate-limit helmet
 node sidefunding.js
 ```
-
-**More features coming soon**
