@@ -766,9 +766,7 @@ app.post('/api/webhooks/sideshift', highTrafficLimiter, async (req, res) => {
         const contentType = req.get('content-type');
 
         if (contentType !== 'application/json') {
-            return res.status(400).json({
-                error: 'Content-Type must be application/json'
-            });
+            return res.status(200).json('Content-Type must be application/json');
         }
 
         const notificationId = notification.meta.hook.id;
