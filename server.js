@@ -891,7 +891,7 @@ app.post("/donate-checkout/:id", donationLimiter, async function (req, res) {
             return res.status(400).render('error', { error: { title: "Invalid total amountUsd", message: "Invalid total amountUsd" } });
         }
 
-        let donor = shiftProcessor.helper.sanitizeString(DOMPurify.sanitize(req.body.amountUsd, sanitizeConfig));
+        let donor = shiftProcessor.helper.sanitizeString(DOMPurify.sanitize(req.body.donor, sanitizeConfig));
         if (!donor || donor === "") donor = "Anon";
 
         const settleCoin = project.wallet.coin;
