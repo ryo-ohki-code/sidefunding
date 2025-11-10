@@ -14,7 +14,7 @@ This platform allows users to create funding requests and accept donations using
 
 ### Components
 - [sideshift-api-node](https://github.com/ryo-ohki-code/sideshift-api-node): Interface to communicate with the official Sideshift API.
-- [ShiftProcessor.js](https://github.com/ryo-ohki-code/sideshift-payment-wrapper-node/blob/main/ShiftProcessor.js): Core logic to create and manage crypto payments through Sideshift.
+- [sideshift-payment-wrapper-node](https://github.com/ryo-ohki-code/sideshift-payment-wrapper-node/blob/main/ShiftProcessor.js): Core logic to create and manage crypto payments through Sideshift.
 
 ### Download required files
 ```bash
