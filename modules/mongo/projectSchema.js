@@ -1,28 +1,5 @@
 const mongoose = require('mongoose');
 
-// const paymentSchema = new mongoose.Schema({
-//     paymentId: {
-//         type: String,
-//         required: true,
-//         unique: true
-//     },
-//     projectId: {
-//         type: String,
-//         required: true,
-//     },
-//     createdAt: {
-//         type: Date,
-//         default: Date.now
-//     },
-//     expiresAt: {
-//         type: Date,
-//         required: true,
-//         default: new Date(Date.now() + 60 * 60 * 1000)
-//     }
-// }, {
-//     timestamps: true
-// });
-
 const projectSchema = new mongoose.Schema({
     id: {
         type: String,
@@ -81,12 +58,6 @@ const projectSchema = new mongoose.Schema({
             type: Date,
             required: true,
             default: Date.now,
-            // validate: {
-            //     validator: function(v) {
-            //         return v instanceof Date && !isNaN(v);
-            //     },
-            //     message: 'Creation date must be a valid date'
-            // }
         },
         deadline: {
             type: Date,
@@ -142,38 +113,16 @@ const projectSchema = new mongoose.Schema({
             required: true,
             trim: true,
             uppercase: true,
-            // validate: {
-            //     validator: function(v) {
-            //         const validCoins = ['BTC', 'ETH', 'USDT', 'BNB', ... get list];
-            //         return validCoins.includes(v);
-            //     },
-            //     message: 'Please enter a valid cryptocurrency'
-            // }
         },
         network: {
             type: String,
             required: true,
             trim: true,
-            // validate: {
-            //     validator: function(v) {
-            //         const validNetworks = ['ethereum', 'bitcoin', 'binance', 'solana', 'cardano', 'polkadot'];
-            //         return validNetworks.includes(v);
-            //     },
-            //     message: 'Please enter a valid network'
-            // }
         },
         address: {
             type: String,
             required: true,
             trim: true,
-            // validate: {
-            //     validator: function(v) {
-            //         if (!v || v.length < 20) return false;
-            //         // Add more specific validation based on coin type
-            //         return true;
-            //     },
-            //     message: 'Please enter a valid wallet address'
-            // }
         },
         memo: {
             type: String,
@@ -273,50 +222,5 @@ const projectSchema = new mongoose.Schema({
         default: 0
     }
 });
-
-// Add index for better performance
-// projectSchema.index({ title: "text", owner: "text", description: "text" });
-
-// Donation expiration
-// db.projects.createIndex({ "donations.expiresAt": 1 }, { expireAfterSeconds: 3600 })
-
-
-// Middleware to hash password before saving
-// const bcrypt = require('bcryptjs');
-// projectSchema.pre('save', async function(next) {
-//   // Only hash the password if it has been modified
-//   if (!this.isModified('auth.signatureHash')) return next();
-
-//   // Validate password strength
-//   if (this.auth.signatureHash.length < 16) {
-//     return next(new Error('Signature must be at least 16 characters long'));
-//   }
-
-//   // Check for signature complexity
-//   const hasUpperCase = /[A-Z]/.test(this.auth.signatureHash);
-//   const hasLowerCase = /[a-z]/.test(this.auth.signatureHash);
-//   const hasNumbers = /\d/.test(this.auth.signatureHash);
-  
-//   if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
-//     return next(new Error('Password must contain uppercase, lowercase, and numbers'));
-//   }
-
-//   try {
-//     // Generate salt
-//     const salt = await bcrypt.genSalt(12);
-//     // Hash the password
-//     this.auth.signatureHash = await bcrypt.hash(this.auth.signatureHash, salt);
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
-// // Add method to compare passwords
-// projectSchema.methods.comparePassword = async function(candidatePassword) {
-//   return await bcrypt.compare(candidatePassword, this.auth.signatureHash);
-// };
-
-
 
 module.exports = { projectSchema };

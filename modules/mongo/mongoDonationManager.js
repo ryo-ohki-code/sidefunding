@@ -11,9 +11,9 @@ async function addDonation(_id, donationData) {
         const result = await projectsDb.findByIdAndUpdate(
             _id,
             {
-                $push: { donations: donationData } // Add donation to donations array
+                $push: { donations: donationData } 
             },
-            { new: true } // Return the updated document
+            { new: true }
         );
 
         // console.log('Donation added successfully:', result);
@@ -33,7 +33,7 @@ async function removeDonationById(_id, donationId) {
                     donations: { id: donationId }
                 }
             },
-            { new: true } // Return the updated document
+            { new: true }
         );
 
         // console.log('Donation removed successfully:', result);
