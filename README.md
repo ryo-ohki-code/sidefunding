@@ -28,6 +28,7 @@ npm install express pug fs dotenv multer isomorphic-dompurify mongoose ethers ex
 wget -O public/js/ethers-6-7-0.min.js https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js
 wget -O public/js/qrious.min.js https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js
 wget -O public/js/all.min.js https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/js/all.min.js
+mkdir public/js/EasyMDE
 wget -O public/js/EasyMDE/easymde.min.js https://unpkg.com/easymde/dist/easymde.min.js
 wget -O public/js/EasyMDE/easymde.min.css https://unpkg.com/easymde/dist/easymde.min.css
 wget -O public/js/EasyMDE/marked.umd.js https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js
