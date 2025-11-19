@@ -1,10 +1,10 @@
 # SideShift API crowdfunding integration
 
-This Node.js project demonstrates integration with the [SideShift API](https://sideshift.ai/) to build a free crowdfunding platform.
+This Node.js project leverages the [SideShift API](https://sideshift.ai/a/9iuC2qrEj) API capabilities to build a free crowdfunding platform.
 
-This platform allows users to create funding requests and accept donations using any of the 250+ cryptocurrencies supported by the SideShift API, all without requiring user accounts. Users authenticate through wallet signatures to manage their funding requests and add messages, while donors can contribute seamlessly using their preferred cryptocurrency from the SideShift API ecosystem.
+This platform allows users to create funding campaigns and accept donations using any of the 250+ cryptocurrencies supported by the SideShift API, all without requiring user accounts. Users authenticate through wallet signatures to manage their funding campaigns and respond to messages, while donors can contribute seamlessly using their preferred cryptocurrency from the SideShift API ecosystem.
 
-**Revenue Model**: How it works
+**Revenue Model**:
 - Platform owners earn 0-2% commission on every transaction processed through SideShift API
 - Fees are collected in XAI tokens (SideShift's native cryptocurrency) and directly credited to your SideShift account
 - XAI tokens can be exchanged on the SideShift platform
@@ -14,7 +14,7 @@ This platform allows users to create funding requests and accept donations using
 
 ### Components
 - [sideshift-api-node](https://github.com/ryo-ohki-code/sideshift-api-node): Interface to communicate with the official Sideshift API.
-- [sideshift-payment-wrapper-node](https://github.com/ryo-ohki-code/sideshift-payment-wrapper-node/blob/main/ShiftProcessor.js): Core logic to create and manage crypto payments through Sideshift.
+- [sideshift-payment-wrapper-node](https://github.com/ryo-ohki-code/sideshift-payment-wrapper-node/blob/main/ShiftProcessor.js): Core logic to create and manage crypto payments through Sideshift API.
 
 ### Download required files
 ```bash
@@ -57,7 +57,8 @@ Note: css is not included, you need to rebuild yours.
 - SideShift API key (secret and id)
 
 How to get your API credentials?
-Visit [Sideshift Account Page](https://sideshift.ai/account) and dind your SideShift ID and Secret (private key) in the dashboard.
+Navigate to [SideShift.ai](https://sideshift.ai/a/9iuC2qrEj), click on the "Account" option in the top right corner menu, and you will find your SideShift ID and Private Key on the dashboard (if this is your first visit, you will be prompted to save your private key)
+
 
 
 **Set .env file**
